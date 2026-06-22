@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pensieve — Logo Concepts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=EB+Garamond:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --midnight: #16142B;
+    --midnight-soft: #221F3F;
+    --indigo: #2C2856;
+    --gold: #D4AF6A;
+    --gold-soft: #E8CC8E;
+    --lavender: #B6AEDB;
+    --silver: #EDEAF6;
+    --cream: #F6F1E6;
+    --cream-dim: #EAE2CC;
+    --ink: #2A2440;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--midnight);
+    font-family: 'EB Garamond', serif;
+    color: var(--cream);
+    padding: 0 0 80px;
+  }
+  .page-head {
+    text-align: center;
+    padding: 60px 24px 40px;
+  }
+  .page-head .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+    display: block;
+  }
+  .page-head h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    font-size: clamp(38px, 7vw, 60px);
+    color: var(--cream);
+    letter-spacing: 0.02em;
+  }
+  .page-head p {
+    color: var(--lavender);
+    font-style: italic;
+    font-size: 16px;
+    margin-top: 10px;
+  }
+
+  .section {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 50px 24px;
+  }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  /* Card grid for icon on different backgrounds */
+  .swatch-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  @media (max-width: 720px) {
+    .swatch-grid { grid-template-columns: 1fr; }
+  }
+  .swatch {
+    border-radius: 16px;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .swatch.dark { background: var(--midnight-soft); }
+  .swatch.darker { background: var(--ink); }
+  .swatch.light { background: var(--cream); }
+  .swatch-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--lavender);
+  }
+  .swatch.light .swatch-label { color: #8b7da3; }
+
+  /* App icon rounded square preview */
+  .app-icon {
+    width: 110px;
+    height: 110px;
+    border-radius: 24px;
+    background: linear-gradient(160deg, var(--indigo), var(--midnight));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+  }
+  .app-icon svg { width: 68%; height: 68%; }
+
+  /* Wordmark lockup */
+  .lockup {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .lockup svg.mark { width: 64px; height: 64px; }
+  .lockup-text {
+    text-align: left;
+  }
+  .wordmark {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    font-size: 42px;
+    letter-spacing: 0.03em;
+  }
+  .lockup.on-dark .wordmark { color: var(--cream); }
+  .lockup.on-light .wordmark { color: var(--ink); }
+  .tagline {
+    font-style: italic;
+    font-size: 13px;
+    letter-spacing: 0.03em;
+    margin-top: 2px;
+  }
+  .lockup.on-dark .tagline { color: var(--lavender); }
+  .lockup.on-light .tagline { color: #8b7da3; }
+
+  .lockup-card {
+    border-radius: 16px;
+    padding: 50px 30px;
+    margin-bottom: 20px;
+  }
+  .lockup-card.dark { background: var(--midnight-soft); }
+  .lockup-card.light { background: var(--cream); }
+
+  .notes {
+    max-width: 640px;
+    margin: 50px auto 0;
+    background: var(--midnight-soft);
+    border-radius: 16px;
+    padding: 32px 36px;
+    border-left: 3px solid var(--gold);
+  }
+  .notes h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    color: var(--gold-soft);
+    margin-bottom: 14px;
+    font-weight: 500;
+  }
+  .notes p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--cream-dim);
+    margin-bottom: 10px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Defs: gradients shared across all instances -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="mistGoldA" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#B6AEDB" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#B6AEDB" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="mistGoldB" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#EDEAF6" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#EDEAF6" stop-opacity="0.8"/>
+    </linearGradient>
+    <linearGradient id="basinFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#332E5C"/>
+      <stop offset="100%" stop-color="#1E1A38"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<div class="page-head">
+  <span class="eyebrow">A reading mind</span>
+  <h1>Pensieve</h1>
+  <p>where every story she's read leaves a trace of silver light</p>
+</div>
+
+<!-- ============ THE MARK ITSELF ============ -->
+<div class="section">
+  <div class="section-title">The Mark</div>
+  <p style="text-align:center; color:var(--lavender); font-style:italic; font-size:14px; max-width:560px; margin:0 auto 36px;">
+    The open book itself becomes the basin — memory-mist rises from the spine instead of from stone, with two wisps that cross like the moment a thought turns into a story.
+  </p>
+
+  <div class="swatch-grid">
+    <div class="swatch dark">
+      <svg viewBox="0 0 240 240" width="120" height="120">
+        <!-- Basin / open book -->
+        <path d="M 38,128 Q 79,176 120,176 Q 161,176 202,128 L 202,114 Q 161,158 120,158 Q 79,158 38,114 Z"
+              fill="url(#basinFill)" stroke="#D4AF6A" stroke-width="2"/>
+        <!-- gilded page lines -->
+        <path d="M 50,124 Q 84,160 120,160" fill="none" stroke="#D4AF6A" stroke-width="1" opacity="0.5"/>
+        <path d="M 190,124 Q 156,160 120,160" fill="none" stroke="#D4AF6A" stroke-width="1" opacity="0.5"/>
+        <!-- spine notch -->
+        <line x1="120" y1="158" x2="120" y2="170" stroke="#D4AF6A" stroke-width="2"/>
+        <!-- mist ribbon 1 -->
+        <path d="M 116,156 C 96,128 142,108 108,86 C 84,70 124,54 112,34"
+              fill="none" stroke="url(#mistGoldA)" stroke-width="5" stroke-linecap="round"/>
+        <!-- mist ribbon 2 -->
+        <path d="M 128,156 C 150,132 104,114 134,90 C 154,75 110,58 138,38"
+              fill="none" stroke="url(#mistGoldB)" stroke-width="3.5" stroke-linecap="round"/>
+        <!-- sparkles -->
+        <circle cx="150" cy="50" r="2.6" fill="#E8CC8E"/>
+        <circle cx="96" cy="60" r="1.8" fill="#EDEAF6"/>
+        <circle cx="128" cy="32" r="2.2" fill="#D4AF6A"/>
+      </svg>
+      <span class="swatch-label">Midnight</span>
+    </div>
+
+    <div class="swatch darker">
+      <svg viewBox="0 0 240 240" width="120" height="120">
+        <path d="M 38,128 Q 79,176 120,176 Q 161,176 202,128 L 202,114 Q 161,158 120,158 Q 79,158 38,114 Z"
+              fill="url(#basinFill)" stroke="#D4AF6A" stroke-width="2"/>
+        <path d="M 50,124 Q 84,160 120,160" fill="none" stroke="#D4AF6A" stroke-width="1" opacity="0.5"/>
+        <path d="M 190,124 Q 156,160 120,160" fill="none" stroke="#D4AF6A" stroke-width="1" opacity="0.5"/>
+        <line x1="120" y1="158" x2="120" y2="170" stroke="#D4AF6A" stroke-width="2"/>
+        <path d="M 116,156 C 96,128 142,108 108,86 C 84,70 124,54 112,34"
+              fill="none" stroke="url(#mistGoldA)" stroke-width="5" stroke-linecap="round"/>
+        <path d="M 128,156 C 150,132 104,114 134,90 C 154,75 110,58 138,38"
+              fill="none" stroke="url(#mistGoldB)" stroke-width="3.5" stroke-linecap="round"/>
+        <circle cx="150" cy="50" r="2.6" fill="#E8CC8E"/>
+        <circle cx="96" cy="60" r="1.8" fill="#EDEAF6"/>
+        <circle cx="128" cy="32" r="2.2" fill="#D4AF6A"/>
+      </svg>
+      <span class="swatch-label">Ink Black</span>
+    </div>
+
+    <div class="swatch light">
+      <svg viewBox="0 0 240 240" width="120" height="120">
+        <path d="M 38,128 Q 79,176 120,176 Q 161,176 202,128 L 202,114 Q 161,158 120,158 Q 79,158 38,114 Z"
+              fill="#2C2856" stroke="#B8893E" stroke-width="2"/>
+        <path d="M 50,124 Q 84,160 120,160" fill="none" stroke="#B8893E" stroke-width="1" opacity="0.5"/>
+        <path d="M 190,124 Q 156,160 120,160" fill="none" stroke="#B8893E" stroke-width="1" opacity="0.5"/>
+        <line x1="120" y1="158" x2="120" y2="170" stroke="#B8893E" stroke-width="2"/>
+        <path d="M 116,156 C 96,128 142,108 108,86 C 84,70 124,54 112,34"
+              fill="none" stroke="#8E7FB8" stroke-width="5" stroke-linecap="round" opacity="0.85"/>
+        <path d="M 128,156 C 150,132 104,114 134,90 C 154,75 110,58 138,38"
+              fill="none" stroke="#5C5485" stroke-width="3.5" stroke-linecap="round" opacity="0.55"/>
+        <circle cx="150" cy="50" r="2.6" fill="#B8893E"/>
+        <circle cx="96" cy="60" r="1.8" fill="#8E7FB8"/>
+        <circle cx="128" cy="32" r="2.2" fill="#B8893E"/>
+      </svg>
+      <span class="swatch-label">On Cream</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APP ICON PREVIEW ============ -->
+<div class="section">
+  <div class="section-title">As an App Icon</div>
+  <div class="swatch-grid">
+    <div class="swatch dark">
+      <div class="app-icon">
+        <svg viewBox="0 0 240 240">
+          <path d="M 38,128 Q 79,176 120,176 Q 161,176 202,128 L 202,114 Q 161,158 120,158 Q 79,158 38,114 Z"
+                fill="url(#basinFill)" stroke="#D4AF6A" stroke-width="3"/>
+          <line x1="120" y1="158" x2="120" y2="170" stroke="#D4AF6A" stroke-width="2.5"/>
+          <path d="M 116,156 C 96,128 142,108 108,86 C 84,70 124,54 112,34"
+                fill="none" stroke="url(#mistGoldA)" stroke-width="6" stroke-linecap="round"/>
+          <path d="M 128,156 C 150,132 104,114 134,90 C 154,75 110,58 138,38"
+                fill="none" stroke="url(#mistGoldB)" stroke-width="4.5" stroke-linecap="round"/>
+          <circle cx="150" cy="50" r="3.2" fill="#E8CC8E"/>
+          <circle cx="96" cy="60" r="2.4" fill="#EDEAF6"/>
+          <circle cx="128" cy="32" r="2.8" fill="#D4AF6A"/>
+        </svg>
+      </div>
+      <span class="swatch-label">Home Screen</span>
+    </div>
+    <div class="swatch light">
+      <div class="app-icon" style="background:linear-gradient(160deg,#F6F1E6,#EAE2CC);">
+        <svg viewBox="0 0 240 240">
+          <path d="M 38,128 Q 79,176 120,176 Q 161,176 202,128 L 202,114 Q 161,158 120,158 Q 79,158 38,114 Z"
+                fill="#2C2856" stroke="#B8893E" stroke-width="3"/>
+          <line x1="120" y1="158" x2="120" y2="170" stroke="#B8893E" stroke-width="2.5"/>
+          <path d="M 116,156 C 96,128 142,108 108,86 C 84,70 124,54 112,34"
+                fill="none" stroke="#8E7FB8" stroke-width="6" stroke-linecap="round" opacity="0.9"/>
+          <path d="M 128,156 C 150,132 104,114 134,90 C 154,75 110,58 138,38"
+                fill="none" stroke="#5C5485" stroke-width="4.5" stroke-linecap="round" opacity="0.6"/>
+          <circle cx="150" cy="50" r="3.2" fill="#B8893E"/>
+          <circle cx="96" cy="60" r="2.4" fill="#8E7FB8"/>
+          <circle cx="128" cy="32" r="2.8" fill="#B8893E"/>
+        </svg>
+      </div>
+      <span class="swatch-label">Light Variant</span>
+    </div>
+    <div class="swatch darker">
+      <div class="app-icon" style="width:64px;height:64px;border-radius:14px;">
+        <svg viewBox="0 0 240 240">
+          <path d="M 38,128 Q 79,176 120,176 Q 161,176 202,128 L 202,114 Q 161,158 120,158 Q 79,158 38,114 Z"
+                fill="url(#basinFill)" stroke="#D4AF6A" stroke-width="4"/>
+          <line x1="120" y1="158" x2="120" y2="170" stroke="#D4AF6A" stroke-width="3"/>
+          <path d="M 116,156 C 96,128 142,108 108,86 C 84,70 124,54 112,34"
+                fill="none" stroke="url(#mistGoldA)" stroke-width="8" stroke-linecap="round"/>
+          <path d="M 128,156 C 150,132 104,114 134,90 C 154,75 110,58 138,38"
+                fill="none" stroke="url(#mistGoldB)" stroke-width="6" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="swatch-label">Small Size (favicon test)</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ WORDMARK LOCKUPS ============ -->
+<div class="section">
+  <div class="section-title">Wordmark Lockup</div>
+
+  <div class="lockup-card dark">
+    <div class="lockup on-dark">
+      <svg class="mark" viewBox="0 0 240 240">
+        <path d="M 38,128 Q 79,176 120,176 Q 161,176 202,128 L 202,114 Q 161,158 120,158 Q 79,158 38,114 Z"
+              fill="url(#basinFill)" stroke="#D4AF6A" stroke-width="3"/>
+        <line x1="120" y1="158" x2="120" y2="170" stroke="#D4AF6A" stroke-width="2.5"/>
+        <path d="M 116,156 C 96,128 142,108 108,86 C 84,70 124,54 112,34"
+              fill="none" stroke="url(#mistGoldA)" stroke-width="6" stroke-linecap="round"/>
+        <path d="M 128,156 C 150,132 104,114 134,90 C 154,75 110,58 138,38"
+              fill="none" stroke="url(#mistGoldB)" stroke-width="4.5" stroke-linecap="round"/>
+        <circle cx="150" cy="50" r="3" fill="#E8CC8E"/>
+        <circle cx="96" cy="60" r="2.2" fill="#EDEAF6"/>
+      </svg>
+      <div class="lockup-text">
+        <div class="wordmark">Pensieve</div>
+        <div class="tagline">a reading mind</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lockup-card light">
+    <div class="lockup on-light">
+      <svg class="mark" viewBox="0 0 240 240">
+        <path d="M 38,128 Q 79,176 120,176 Q 161,176 202,128 L 202,114 Q 161,158 120,158 Q 79,158 38,114 Z"
+              fill="#2C2856" stroke="#B8893E" stroke-width="3"/>
+        <line x1="120" y1="158" x2="120" y2="170" stroke="#B8893E" stroke-width="2.5"/>
+        <path d="M 116,156 C 96,128 142,108 108,86 C 84,70 124,54 112,34"
+              fill="none" stroke="#8E7FB8" stroke-width="6" stroke-linecap="round" opacity="0.9"/>
+        <path d="M 128,156 C 150,132 104,114 134,90 C 154,75 110,58 138,38"
+              fill="none" stroke="#5C5485" stroke-width="4.5" stroke-linecap="round" opacity="0.6"/>
+        <circle cx="150" cy="50" r="3" fill="#B8893E"/>
+        <circle cx="96" cy="60" r="2.2" fill="#8E7FB8"/>
+      </svg>
+      <div class="lockup-text">
+        <div class="wordmark">Pensieve</div>
+        <div class="tagline">a reading mind</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ NOTES ============ -->
+<div class="notes">
+  <h3>Design notes</h3>
+  <p><strong>The signature:</strong> rather than drawing a separate book and a separate basin, the open book's pages curve into the basin shape itself — so the object that holds her memories of reading and the object that holds magical memories are literally the same line.</p>
+  <p><strong>Palette:</strong> midnight indigo and gilded gold read as "magical" without copying anything Warner Bros. owns — no specific house colors, no canon symbols. Lavender/silver mist nods to the Pensieve's memory-strands without quoting them exactly.</p>
+  <p><strong>Type:</strong> Cormorant Garamond for the wordmark — elegant, a little old-world, readable at small sizes for an app icon label.</p>
+</div>
+
+</body>
+</html>
