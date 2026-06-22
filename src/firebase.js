@@ -4,12 +4,13 @@ import { getFirestore } from "firebase/firestore";
 import { getFunctions } from "firebase/functions";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDPLACEHOLDER",
+  apiKey: "AIzaSyCpq_p7sAxLLVE89XhjJC1iOghQP92UBhQ",
   authDomain: "pensieve-readingmind.firebaseapp.com",
   projectId: "pensieve-readingmind",
   storageBucket: "pensieve-readingmind.firebasestorage.app",
-  messagingSenderId: "000000000000",
-  appId: "1:000000000000:web:placeholder"
+  messagingSenderId: "419824585358",
+  appId: "1:419824585358:web:1bd35ad1f260414a2d57df",
+  measurementId: "G-TXHSS4VMNY"
 };
 
 const app = initializeApp(firebaseConfig);
