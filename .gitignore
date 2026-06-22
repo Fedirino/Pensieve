@@ -5,3 +5,6 @@ dist/
 *.local
 .firebase/
 functions/node_modules/
+firebase-debug.log
+firebase-debug.*.log
+deploy.bat
