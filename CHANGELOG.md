@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.2.0
+
+Cloud Functions and Firestore security rules now deploy automatically alongside the frontend. The GitHub Actions pipeline handles the full stack on every push to main: build the Vite app, deploy hosting, then deploy functions and firestore rules in one go.
+
+The Anthropic API key is set up in Google Cloud Secret Manager, so the book scanner and recommendation engine are live. The Secret Manager API was enabled on the project and the key stored as ANTHROPIC_API_KEY, which the Cloud Functions pick up at runtime.
+
+Also added HTTP referrer restrictions to the Firebase API key (locked to the web.app and firebaseapp.com domains plus localhost for dev).
+
 ## v0.1.0
 
 The first working version of Pensieve. Everything is here: the full library view with search, filtering, and sorting, book detail pages with editable fields, star ratings, and notes, and the AI-powered cover scanner that uses Claude Haiku to identify books from a photo and auto-fill all the details.

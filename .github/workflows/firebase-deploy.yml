@@ -1,4 +1,4 @@
-name: Deploy to Firebase Hosting
+name: Deploy to Firebase
 
 on:
   push:
@@ -20,9 +20,21 @@ jobs:
 
       - run: npm run build
 
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+      - name: Install functions dependencies
+        run: cd functions && npm ci
+
+      - name: Deploy Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           channelId: live
           projectId: pensieve-readingmind
+
+      - name: Setup credentials
+        run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > /tmp/sa-key.json
+
+      - name: Deploy Functions and Firestore rules
+        run: firebase deploy --only functions,firestore --project pensieve-readingmind
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/sa-key.json
