@@ -177,7 +177,7 @@ export default function Scanner({ user, addToast }) {
                   <img src={book.cover} alt={book.title}
                     style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 ) : (
-                  <BookPlaceholder title={book.title} />
+                  <BookPlaceholder title={book.title} author={book.author} genre={book.genre} />
                 )}
               </div>
               <div style={{ flex: 1 }}>

@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.3.0
+
+Regenerated all app icons with a solid midnight background instead of transparent. iOS was showing white corners because it doesn't handle transparent PNGs for home screen icons. Should work properly now when you add to home screen.
+
+Books without cover art now get styled placeholder covers instead of just showing a letter. Each placeholder shows the full title and author on a gradient background that shifts color based on the book's genre. Fantasy books get a purple tone, history gets a warm brown, sci-fi gets a cool blue, and so on. They look like actual book covers rather than broken image cards.
+
 ## v1.2.0
 
 Fixed the app icon not showing up. The icon files were in the wrong folder and Vite wasn't copying them into the build output. They're now in the `public/` directory where Vite expects them, so the favicon, apple-touch-icon, and PWA manifest all work properly.

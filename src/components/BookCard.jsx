@@ -39,7 +39,7 @@ export default function BookCard({ book }) {
               loading="lazy"
             />
           ) : (
-            <BookPlaceholder title={book.title} />
+            <BookPlaceholder title={book.title} author={book.author} genre={book.genre} />
           )}
 
           {/* Favorite badge */}
