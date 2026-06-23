@@ -73,13 +73,63 @@ async function resolveCoverUrl(title, author, isbn13) {
         if (doc.cover_i) {
           return `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`;
         }
+        // Try ISBN from Open Library result for Amazon lookup
+        if (!isbn13 && doc.isbn?.length) {
+          isbn13 = doc.isbn.find((i) => i.length === 13) || "";
+        }
       }
     }
   } catch (e) {
     console.warn("Open Library search failed:", e.message);
   }
 
+  // 4. Amazon cover image via ISBN-10
+  if (isbn13 && isbn13.startsWith("978")) {
+    try {
+      const isbn10 = isbn13toIsbn10(isbn13);
+      if (isbn10) {
+        const amzUrl = `https://images-na.ssl-images-amazon.com/images/P/${isbn10}.01._SCLZZZZZZZ_.jpg`;
+        const res = await fetch(amzUrl, { method: "HEAD", redirect: "follow" });
+        // Amazon returns a 1x1 pixel GIF for missing covers, so check content-length
+        const len = parseInt(res.headers.get("content-length") || "0", 10);
+        if (res.ok && len > 1000) {
+          return amzUrl;
+        }
+      }
+    } catch (e) {
+      console.warn("Amazon cover lookup failed:", e.message);
+    }
+  }
+
+  // 5. Bookcover API (longitood.com) — free, no key needed
+  if (isbn13) {
+    try {
+      const bcUrl = `https://bookcover.longitood.com/bookcover/${isbn13}`;
+      const res = await fetch(bcUrl);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.url && data.url !== "") {
+          return data.url;
+        }
+      }
+    } catch (e) {
+      console.warn("Bookcover API lookup failed:", e.message);
+    }
+  }
+
   return "";
+}
+
+// ── ISBN-13 to ISBN-10 conversion ──────────────────────────────────
+function isbn13toIsbn10(isbn13) {
+  if (!isbn13 || isbn13.length !== 13 || !isbn13.startsWith("978")) return null;
+  const body = isbn13.slice(3, 12); // 9 digits
+  let sum = 0;
+  for (let i = 0; i < 9; i++) {
+    sum += parseInt(body[i], 10) * (10 - i);
+  }
+  const check = (11 - (sum % 11)) % 11;
+  return body + (check === 10 ? "X" : String(check));
 }
 
 // ── Strip markdown fences from AI response ──────────────────────────

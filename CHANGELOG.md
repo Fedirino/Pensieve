@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.4.0
+
+Rewrote the homescreen icon to match the in-app header icon more closely, with the same basin shape and smooth curved mist ribbons rising above it.
+
+Cover art resolution now has five sources instead of two. After Google Books and Open Library, it tries Amazon's image CDN using an ISBN-10 converted from the ISBN-13, then the Bookcover API at longitood.com. If Open Library finds the book but doesn't have a cover, it still grabs the ISBN for the Amazon fallback. Books like the Linehan DBT textbook that weren't showing up before should resolve now.
+
 ## v1.3.0
 
 Regenerated all app icons with a solid midnight background instead of transparent. iOS was showing white corners because it doesn't handle transparent PNGs for home screen icons. Should work properly now when you add to home screen.
