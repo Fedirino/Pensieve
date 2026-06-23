@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
-import { collection, addDoc } from "firebase/firestore";
-import { db } from "../firebase";
+import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
+import { httpsCallable } from "firebase/functions";
+import { db, functions } from "../firebase";
 import { GENRES, STATUSES } from "../App";
 import BookCard from "./BookCard";
 import BookForm from "./BookForm";
@@ -21,6 +22,7 @@ export default function Library({ books, user, addToast }) {
   const [sortBy, setSortBy] = useState("recent");
   const [showAddForm, setShowAddForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [refreshingCovers, setRefreshingCovers] = useState(false);
 
   const reading = useMemo(() =>
     books.filter(b => b.status === "Reading"), [books]);
@@ -51,6 +53,25 @@ export default function Library({ books, user, addToast }) {
     const year = new Date().getFullYear().toString();
     return books.filter(b => b.status === "Finished" && b.dateFinished?.startsWith(year)).length;
   }, [books]);
+
+  const missingCovers = useMemo(() => books.filter(b => !b.cover), [books]);
+
+  const refreshAllCovers = async () => {
+    setRefreshingCovers(true);
+    const resolveFn = httpsCallable(functions, "resolveCover");
+    let found = 0;
+    for (const book of missingCovers) {
+      try {
+        const res = await resolveFn({ title: book.title, author: book.author, isbn13: book.isbn13 || "" });
+        if (res.data.cover) {
+          await updateDoc(doc(db, "users", user.uid, "books", book.id), { cover: res.data.cover });
+          found++;
+        }
+      } catch {}
+    }
+    addToast(found > 0 ? `Found ${found} cover${found !== 1 ? "s" : ""}` : "No covers found");
+    setRefreshingCovers(false);
+  };
 
   const handleAdd = async (data) => {
     setSaving(true);
@@ -132,6 +153,16 @@ export default function Library({ books, user, addToast }) {
         <button className="btn btn-primary" onClick={() => setShowAddForm(true)}>
           + Add Book
         </button>
+        {missingCovers.length > 0 && (
+          <button
+            className="btn btn-secondary"
+            onClick={refreshAllCovers}
+            disabled={refreshingCovers}
+            style={{ fontSize: "0.82rem" }}
+          >
+            {refreshingCovers ? "Searching..." : `Find ${missingCovers.length} Missing Cover${missingCovers.length !== 1 ? "s" : ""}`}
+          </button>
+        )}
       </div>
 
       {/* Book count */}

@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.2.0
+
+Fixed the app icon not showing up. The icon files were in the wrong folder and Vite wasn't copying them into the build output. They're now in the `public/` directory where Vite expects them, so the favicon, apple-touch-icon, and PWA manifest all work properly.
+
+Added a "Find Missing Covers" button to the library toolbar that re-runs cover resolution for any books that don't have cover art yet. There's also a "Find Cover" button on individual book detail pages. This uses a new lightweight Cloud Function that just does the Google Books and Open Library lookup without needing the AI scanner.
+
 ## v1.1.0
 
 Focused on making the book scanner actually reliable. The AI prompt now reads all visible text on the cover before identifying the book, so it catches subtitles, series names, and edition info instead of guessing from the main title alone. Photos get resized to a consistent resolution before hitting the API, which helps with both oversized phone camera shots and tiny thumbnails.

@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { doc, updateDoc, deleteDoc } from "firebase/firestore";
-import { db } from "../firebase";
+import { httpsCallable } from "firebase/functions";
+import { db, functions } from "../firebase";
 import BookForm from "./BookForm";
 import BookPlaceholder from "./BookPlaceholder";
 import StarRating from "./StarRating";
@@ -13,6 +14,7 @@ export default function BookDetail({ books, user, addToast }) {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [refreshingCover, setRefreshingCover] = useState(false);
 
   const book = useMemo(() => books.find(b => b.id === id), [books, id]);
 
@@ -40,6 +42,24 @@ export default function BookDetail({ books, user, addToast }) {
     } catch (err) {
       addToast("Failed to delete: " + err.message, "error");
     }
+  };
+
+  const refreshCover = async () => {
+    setRefreshingCover(true);
+    try {
+      const resolveFn = httpsCallable(functions, "resolveCover");
+      const res = await resolveFn({ title: book.title, author: book.author, isbn13: book.isbn13 || "" });
+      const cover = res.data.cover;
+      if (cover) {
+        await updateDoc(ref, { cover });
+        addToast("Cover updated!");
+      } else {
+        addToast("No cover found for this book", "error");
+      }
+    } catch (err) {
+      addToast("Failed to resolve cover: " + err.message, "error");
+    }
+    setRefreshingCover(false);
   };
 
   const toggleFavorite = async () => {
@@ -89,6 +109,16 @@ export default function BookDetail({ books, user, addToast }) {
               <BookPlaceholder title={book.title} />
             )}
           </div>
+          {!book.cover && (
+            <button
+              className="btn btn-secondary"
+              onClick={refreshCover}
+              disabled={refreshingCover}
+              style={{ marginTop: 8, width: "100%", justifyContent: "center", fontSize: "0.82rem" }}
+            >
+              {refreshingCover ? "Searching..." : "Find Cover"}
+            </button>
+          )}
         </div>
 
         {/* Details */}

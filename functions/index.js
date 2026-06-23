@@ -172,6 +172,24 @@ If you cannot identify any book, return [].`,
   }
 );
 
+// ── resolveCover ────────────────────────────────────────────────────
+exports.resolveCover = onCall(
+  { timeoutSeconds: 30, memory: "256MiB" },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "Must be signed in.");
+    }
+
+    const { title, author, isbn13 } = request.data;
+    if (!title) {
+      throw new HttpsError("invalid-argument", "title is required.");
+    }
+
+    const cover = await resolveCoverUrl(title || "", author || "", isbn13 || "");
+    return { cover };
+  }
+);
+
 // ── getRecommendations ──────────────────────────────────────────────
 exports.getRecommendations = onCall(
   { secrets: [anthropicKey], timeoutSeconds: 60, memory: "512MiB" },
