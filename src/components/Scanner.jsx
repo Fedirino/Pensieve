@@ -33,7 +33,8 @@ function resizeImage(file, maxDim = 1600) {
 
 export default function Scanner({ user, addToast }) {
   const navigate = useNavigate();
-  const fileRef = useRef();
+  const cameraRef = useRef();
+  const uploadRef = useRef();
   const [scanning, setScanning] = useState(false);
   const [results, setResults] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -107,49 +108,67 @@ export default function Scanner({ user, addToast }) {
         Take a photo or upload an image of a book cover. Pensieve will identify it and fill in the details.
       </p>
 
-      {/* Upload area */}
-      <div
-        onClick={() => fileRef.current?.click()}
-        style={{
-          border: "2px dashed var(--indigo)",
+      {/* Preview area */}
+      {preview && (
+        <div style={{
+          border: "2px solid var(--indigo)",
           borderRadius: "var(--radius-lg)",
-          padding: preview ? 0 : 48,
-          textAlign: "center",
-          cursor: "pointer",
-          transition: "border-color var(--transition)",
           overflow: "hidden",
-          position: "relative",
-        }}
-        onMouseOver={e => e.currentTarget.style.borderColor = "var(--gold)"}
-        onMouseOut={e => e.currentTarget.style.borderColor = "var(--indigo)"}
-      >
-        {preview ? (
+          marginBottom: 16,
+        }}>
           <img src={preview} alt="Preview"
-            style={{ width: "100%", maxHeight: 400, objectFit: "contain" }} />
-        ) : (
-          <>
-            <svg width="48" height="36" viewBox="0 0 80 60" fill="none" style={{ opacity: 0.3, marginBottom: 12 }}>
-              <path d="M8 12 C8 12 20 8 40 8 C60 8 72 12 72 12 L72 20 C72 20 68 44 40 44 C12 44 8 20 8 20 Z"
-                stroke="var(--gold)" strokeWidth="2" fill="none" />
-              <line x1="40" y1="8" x2="40" y2="44" stroke="var(--gold)" strokeWidth="1" opacity="0.5" />
-            </svg>
-            <p style={{ color: "var(--lavender)", fontSize: "0.95rem" }}>
-              Click to upload or take a photo
-            </p>
-            <p style={{ color: "var(--lavender)", fontSize: "0.8rem", opacity: 0.5, marginTop: 4 }}>
-              JPG, PNG, or HEIC
-            </p>
-          </>
-        )}
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          onChange={handleFile}
-          style={{ display: "none" }}
-        />
+            style={{ width: "100%", maxHeight: 400, objectFit: "contain", display: "block" }} />
+        </div>
+      )}
+
+      {/* Action buttons */}
+      <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
+        <button
+          className="btn btn-primary"
+          onClick={() => cameraRef.current?.click()}
+          style={{ flex: 1, justifyContent: "center", padding: "14px 16px", fontSize: "0.95rem" }}
+          disabled={scanning}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 8, flexShrink: 0 }}>
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+          Take Photo
+        </button>
+        <button
+          className="btn btn-secondary"
+          onClick={() => uploadRef.current?.click()}
+          style={{ flex: 1, justifyContent: "center", padding: "14px 16px", fontSize: "0.95rem" }}
+          disabled={scanning}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 8, flexShrink: 0 }}>
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          Upload Image
+        </button>
       </div>
+      <p style={{ color: "var(--lavender)", fontSize: "0.78rem", opacity: 0.5, textAlign: "center", marginBottom: 8 }}>
+        JPG, PNG, or HEIC
+      </p>
+
+      {/* Hidden file inputs */}
+      <input
+        ref={cameraRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={handleFile}
+        style={{ display: "none" }}
+      />
+      <input
+        ref={uploadRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFile}
+        style={{ display: "none" }}
+      />
 
       {/* Scanning state */}
       {scanning && <MistLoader text="Identifying books..." />}

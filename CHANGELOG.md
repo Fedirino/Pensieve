@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.8.2
+
+The book scanner page now has separate "Take Photo" and "Upload Image" buttons. Previously the scan page would jump straight to the camera, which made it impossible to upload a picture you'd already taken or saved. Now you can do either. Both feed into the same AI scan pipeline so everything works the same after you pick your image.
+
 ## v1.8.1
 
 You can now upload cover images directly from your device. On any book's detail page there's an "Upload Cover" button (or "Replace Cover" if it already has one). Download the image from Amazon or wherever, then upload it straight to the app. Images are stored in Firebase Storage under your account. The old "paste URL" approach is gone in favor of this since getting usable image URLs from Google Images was more hassle than it was worth.
