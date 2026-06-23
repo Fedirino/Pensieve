@@ -22,22 +22,39 @@ function titlesMatch(a, b) {
 
 // ── Cover image resolution ──────────────────────────────────────────
 async function resolveCoverUrl(title, author, isbn13) {
+  // Collect ISBNs we discover along the way
+  const isbns = new Set();
+  if (isbn13) isbns.add(isbn13);
+
   // 1. Google Books API — try ISBN first, then title+author
   try {
     const queries = [];
     if (isbn13) queries.push(`isbn:${isbn13}`);
     queries.push(`intitle:${encodeURIComponent(title)}+inauthor:${encodeURIComponent(author)}`);
+    // Also try a simpler query with just the title for academic books
+    const shortTitle = title.split(/[:\-–—]/)[0].trim();
+    if (shortTitle !== title) {
+      queries.push(`intitle:${encodeURIComponent(shortTitle)}+inauthor:${encodeURIComponent(author)}`);
+    }
 
     for (const q of queries) {
-      const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=3`);
+      const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=5`);
       const data = await res.json();
       if (!data.items) continue;
 
-      // Find best matching result — verify the title actually matches
       for (const item of data.items) {
         const info = item.volumeInfo || {};
         const resultTitle = info.title || "";
         if (!titlesMatch(resultTitle, title)) continue;
+
+        // Collect any ISBNs from this result
+        if (info.industryIdentifiers) {
+          for (const id of info.industryIdentifiers) {
+            if (id.type === "ISBN_13") isbns.add(id.identifier);
+            if (id.type === "ISBN_10") isbns.add(id.identifier);
+          }
+        }
+
         const links = info.imageLinks;
         if (links) {
           const url = links.thumbnail || links.smallThumbnail || "";
@@ -49,22 +66,24 @@ async function resolveCoverUrl(title, author, isbn13) {
     console.warn("Google Books lookup failed:", e.message);
   }
 
-  // 2. Open Library fallback — try ISBN, then title search
-  if (isbn13) {
-    try {
-      const olUrl = `https://covers.openlibrary.org/b/isbn/${isbn13}-L.jpg`;
-      const res = await fetch(olUrl, { method: "HEAD", redirect: "follow" });
-      if (res.ok && res.headers.get("content-type")?.startsWith("image/")) {
-        return olUrl;
+  // 2. Open Library — try all known ISBNs
+  for (const isbn of isbns) {
+    if (isbn.length === 13) {
+      try {
+        const olUrl = `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`;
+        const res = await fetch(olUrl, { method: "HEAD", redirect: "follow" });
+        if (res.ok && res.headers.get("content-type")?.startsWith("image/")) {
+          return olUrl;
+        }
+      } catch (e) {
+        console.warn("Open Library ISBN lookup failed:", e.message);
       }
-    } catch (e) {
-      console.warn("Open Library ISBN lookup failed:", e.message);
     }
   }
 
   // 3. Open Library search by title+author
   try {
-    const searchUrl = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}&limit=3`;
+    const searchUrl = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}&limit=5`;
     const res = await fetch(searchUrl);
     const data = await res.json();
     if (data.docs?.length) {
@@ -73,9 +92,9 @@ async function resolveCoverUrl(title, author, isbn13) {
         if (doc.cover_i) {
           return `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`;
         }
-        // Try ISBN from Open Library result for Amazon lookup
-        if (!isbn13 && doc.isbn?.length) {
-          isbn13 = doc.isbn.find((i) => i.length === 13) || "";
+        // Collect ISBNs for Amazon fallback
+        if (doc.isbn?.length) {
+          for (const i of doc.isbn) isbns.add(i);
         }
       }
     }
@@ -83,38 +102,62 @@ async function resolveCoverUrl(title, author, isbn13) {
     console.warn("Open Library search failed:", e.message);
   }
 
-  // 4. Amazon cover image via ISBN-10
-  if (isbn13 && isbn13.startsWith("978")) {
+  // 4. Amazon cover image — try all known ISBN-10s and ISBN-13s
+  for (const isbn of isbns) {
     try {
-      const isbn10 = isbn13toIsbn10(isbn13);
-      if (isbn10) {
-        const amzUrl = `https://images-na.ssl-images-amazon.com/images/P/${isbn10}.01._SCLZZZZZZZ_.jpg`;
-        const res = await fetch(amzUrl, { method: "HEAD", redirect: "follow" });
-        // Amazon returns a 1x1 pixel GIF for missing covers, so check content-length
-        const len = parseInt(res.headers.get("content-length") || "0", 10);
-        if (res.ok && len > 1000) {
-          return amzUrl;
-        }
+      let isbn10 = isbn;
+      if (isbn.length === 13 && isbn.startsWith("978")) {
+        isbn10 = isbn13toIsbn10(isbn);
+      } else if (isbn.length !== 10) {
+        continue;
+      }
+      if (!isbn10) continue;
+
+      const amzUrl = `https://images-na.ssl-images-amazon.com/images/P/${isbn10}.01._SCLZZZZZZZ_.jpg`;
+      const res = await fetch(amzUrl, { method: "HEAD", redirect: "follow" });
+      const len = parseInt(res.headers.get("content-length") || "0", 10);
+      if (res.ok && len > 1000) {
+        return amzUrl;
       }
     } catch (e) {
       console.warn("Amazon cover lookup failed:", e.message);
     }
   }
 
-  // 5. Bookcover API (longitood.com) — free, no key needed
-  if (isbn13) {
-    try {
-      const bcUrl = `https://bookcover.longitood.com/bookcover/${isbn13}`;
-      const res = await fetch(bcUrl);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.url && data.url !== "") {
-          return data.url;
+  // 5. Bookcover API (longitood.com)
+  for (const isbn of isbns) {
+    if (isbn.length === 13) {
+      try {
+        const bcUrl = `https://bookcover.longitood.com/bookcover/${isbn}`;
+        const res = await fetch(bcUrl);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.url && data.url !== "") {
+            return data.url;
+          }
+        }
+      } catch (e) {
+        console.warn("Bookcover API lookup failed:", e.message);
+      }
+    }
+  }
+
+  // 6. Last resort — Google Books without title validation (for niche/academic books)
+  try {
+    const q = `${encodeURIComponent(title)}+${encodeURIComponent(author)}`;
+    const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=3`);
+    const data = await res.json();
+    if (data.items) {
+      for (const item of data.items) {
+        const links = item.volumeInfo?.imageLinks;
+        if (links) {
+          const url = links.thumbnail || links.smallThumbnail || "";
+          if (url) return url.replace("http://", "https://");
         }
       }
-    } catch (e) {
-      console.warn("Bookcover API lookup failed:", e.message);
     }
+  } catch (e) {
+    console.warn("Google Books fallback lookup failed:", e.message);
   }
 
   return "";

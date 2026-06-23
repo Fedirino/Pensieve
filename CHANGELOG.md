@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.5.0
+
+Simplified the app icon to just the basin shape with mist rising out of it, no circle border or extra decoration. Should match the in-app header icon now.
+
+Overhauled cover art resolution to be much more aggressive at finding images. The function now collects ISBNs from every source it talks to (Google Books, Open Library) and tries all of them against Amazon and the Bookcover API. It also tries a shortened version of the title for academic books with long subtitles, and does a last-resort Google Books search without title validation. This should catch books like the Linehan DBT textbook that were falling through before.
+
 ## v1.4.0
 
 Rewrote the homescreen icon to match the in-app header icon more closely, with the same basin shape and smooth curved mist ribbons rising above it.
