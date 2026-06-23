@@ -1,23 +1,34 @@
 :root {
-  --midnight: #16142B;
-  --midnight-soft: #221F3F;
-  --indigo: #2C2856;
-  --gold: #D4AF6A;
-  --gold-soft: #E8CC8E;
-  --lavender: #B6AEDB;
-  --silver: #EDEAF6;
-  --cream: #F6F1E6;
-  --cream-dim: #EAE2CC;
-  --ink: #2A2440;
+  /* ── Slytherin Library palette ──────────────────────────────── */
+  --midnight: #0A0D0B;
+  --midnight-soft: #121A15;
+  --indigo: #1A2E22;
+  --gold: #C9A84C;
+  --gold-soft: #DDBE68;
+  --lavender: #7E9E8A;
+  --silver: #CBD8CE;
+  --cream: #E0EAE3;
+  --cream-dim: #C3D0C6;
+  --ink: #0E1B13;
+
+  /* ── Extended serpent palette ────────────────────────────────── */
+  --emerald: #2E8B57;
+  --emerald-dim: #1F5C3A;
+  --emerald-glow: rgba(46, 139, 87, 0.12);
+  --serpent-shimmer: rgba(201, 168, 76, 0.06);
+  --venom: #3CB371;
+  --parchment: #D4CABA;
+  --shadow-green: rgba(10, 13, 11, 0.85);
 
   --font-display: "Cormorant Garamond", Georgia, serif;
   --font-body: "EB Garamond", Georgia, serif;
 
   --radius: 8px;
   --radius-lg: 14px;
-  --shadow: 0 2px 12px rgba(22, 20, 43, 0.18);
-  --shadow-lg: 0 8px 32px rgba(22, 20, 43, 0.25);
-  --transition: 0.2s ease;
+  --shadow: 0 2px 12px rgba(10, 13, 11, 0.3);
+  --shadow-lg: 0 8px 32px rgba(10, 13, 11, 0.45);
+  --shadow-emerald: 0 4px 20px rgba(46, 139, 87, 0.15);
+  --transition: 0.25s ease;
 }
 
 * {
@@ -77,10 +88,10 @@ input, textarea, select {
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--lavender);
+  background: var(--emerald-dim);
 }
 
-/* ── Mist divider ──────────────────────────────────────────────── */
+/* ── Mist divider (with serpentine feel) ──────────────────────── */
 .mist-divider {
   display: flex;
   align-items: center;
@@ -92,7 +103,7 @@ input, textarea, select {
   content: "";
   flex: 1;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  background: linear-gradient(90deg, transparent, var(--emerald-dim), var(--gold), var(--emerald-dim), transparent);
 }
 .mist-divider .wisp {
   width: 20px;
@@ -110,6 +121,18 @@ input, textarea, select {
   0% { transform: translateY(2px) scaleY(0.9); opacity: 0.2; }
   50% { transform: translateY(-12px) scaleY(1.1); opacity: 0.6; }
   100% { transform: translateY(2px) scaleY(0.9); opacity: 0.2; }
+}
+
+/* ── Emerald pulse glow ──────────────────────────────────────── */
+@keyframes emeraldPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(46, 139, 87, 0); }
+  50% { box-shadow: 0 0 20px rgba(46, 139, 87, 0.15); }
+}
+
+/* ── Serpent shimmer for card hovers ──────────────────────────── */
+@keyframes serpentShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
 .mist-loader {
@@ -135,7 +158,7 @@ input, textarea, select {
   width: 3px;
   height: 28px;
   border-radius: 2px;
-  background: linear-gradient(to top, var(--lavender), transparent);
+  background: linear-gradient(to top, var(--emerald), transparent);
 }
 .mist-loader .ribbon:nth-child(1) {
   left: 28px;
@@ -147,7 +170,7 @@ input, textarea, select {
 }
 .mist-loader .label {
   font-family: var(--font-display);
-  color: var(--lavender);
+  color: var(--emerald);
   font-size: 1rem;
   letter-spacing: 0.04em;
 }
@@ -162,23 +185,27 @@ input, textarea, select {
   font-size: 0.95rem;
   font-weight: 500;
   transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
 }
 .btn-primary {
-  background: var(--gold);
+  background: linear-gradient(135deg, var(--gold) 0%, #A88B35 100%);
   color: var(--midnight);
+  border: 1px solid rgba(201, 168, 76, 0.3);
 }
 .btn-primary:hover {
-  background: var(--gold-soft);
-  box-shadow: 0 0 16px rgba(212, 175, 106, 0.3);
+  background: linear-gradient(135deg, var(--gold-soft) 0%, var(--gold) 100%);
+  box-shadow: 0 0 20px rgba(201, 168, 76, 0.25), 0 0 40px rgba(201, 168, 76, 0.1);
 }
 .btn-secondary {
   background: var(--indigo);
   color: var(--silver);
-  border: 1px solid rgba(182, 174, 219, 0.2);
+  border: 1px solid rgba(46, 139, 87, 0.15);
 }
 .btn-secondary:hover {
-  border-color: var(--lavender);
-  background: rgba(44, 40, 86, 0.8);
+  border-color: var(--emerald-dim);
+  background: rgba(26, 46, 34, 0.9);
+  box-shadow: var(--shadow-emerald);
 }
 .btn-ghost {
   background: transparent;
@@ -188,12 +215,12 @@ input, textarea, select {
   color: var(--gold);
 }
 .btn-danger {
-  background: rgba(200, 60, 60, 0.15);
-  color: #e88;
-  border: 1px solid rgba(200, 60, 60, 0.3);
+  background: rgba(180, 60, 60, 0.12);
+  color: #d88;
+  border: 1px solid rgba(180, 60, 60, 0.25);
 }
 .btn-danger:hover {
-  background: rgba(200, 60, 60, 0.25);
+  background: rgba(180, 60, 60, 0.22);
 }
 .btn:disabled {
   opacity: 0.4;
@@ -209,10 +236,11 @@ input, textarea, select {
   border-radius: var(--radius);
   color: var(--silver);
   font-size: 0.95rem;
-  transition: border-color var(--transition);
+  transition: border-color var(--transition), box-shadow var(--transition);
 }
 .input:focus, .textarea:focus, .select:focus {
-  border-color: var(--gold);
+  border-color: var(--emerald-dim);
+  box-shadow: 0 0 0 2px var(--emerald-glow);
 }
 .textarea {
   resize: vertical;
@@ -220,7 +248,7 @@ input, textarea, select {
 }
 .select {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23B6AEDB' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237E9E8A' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   padding-right: 36px;
@@ -237,14 +265,29 @@ input, textarea, select {
 /* ── Cards ─────────────────────────────────────────────────────── */
 .card {
   background: var(--midnight-soft);
-  border: 1px solid rgba(182, 174, 219, 0.08);
+  border: 1px solid rgba(46, 139, 87, 0.08);
   border-radius: var(--radius-lg);
   padding: 20px;
   transition: all var(--transition);
+  position: relative;
+}
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--emerald-glow), transparent, var(--serpent-shimmer));
+  opacity: 0;
+  transition: opacity var(--transition);
+  pointer-events: none;
 }
 .card:hover {
-  border-color: rgba(212, 175, 106, 0.2);
-  box-shadow: var(--shadow);
+  border-color: rgba(46, 139, 87, 0.2);
+  box-shadow: var(--shadow), 0 0 30px rgba(46, 139, 87, 0.08);
+  transform: translateY(-2px);
+}
+.card:hover::before {
+  opacity: 1;
 }
 
 /* ── Star rating ───────────────────────────────────────────────── */
@@ -278,15 +321,16 @@ input, textarea, select {
 .toast {
   padding: 12px 20px;
   background: var(--midnight-soft);
-  border: 1px solid var(--gold);
+  border: 1px solid var(--emerald-dim);
   border-radius: var(--radius);
   color: var(--silver);
   font-size: 0.9rem;
   box-shadow: var(--shadow-lg);
   animation: toastIn 0.3s ease;
+  backdrop-filter: blur(8px);
 }
 .toast.error {
-  border-color: #c83c3c;
+  border-color: #a03030;
 }
 @keyframes toastIn {
   from { opacity: 0; transform: translateY(12px); }
@@ -297,8 +341,8 @@ input, textarea, select {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(22, 20, 43, 0.85);
-  backdrop-filter: blur(4px);
+  background: rgba(10, 13, 11, 0.88);
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -307,18 +351,61 @@ input, textarea, select {
 }
 .modal {
   background: var(--midnight-soft);
-  border: 1px solid rgba(182, 174, 219, 0.12);
+  border: 1px solid rgba(46, 139, 87, 0.15);
   border-radius: var(--radius-lg);
   padding: 32px;
   max-width: 560px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-lg), 0 0 60px rgba(46, 139, 87, 0.06);
 }
 .modal h2 {
   color: var(--gold);
   margin-bottom: 20px;
+}
+
+/* ── Gothic ornament dividers ─────────────────────────────────── */
+.gothic-divider {
+  text-align: center;
+  margin: 24px 0;
+  position: relative;
+}
+.gothic-divider::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--indigo), var(--emerald-dim), var(--indigo), transparent);
+}
+.gothic-divider .ornament {
+  position: relative;
+  display: inline-block;
+  padding: 0 16px;
+  background: var(--midnight);
+  color: var(--emerald-dim);
+  font-size: 1.2rem;
+}
+
+/* ── Section headers with serpentine underline ─────────────────── */
+.section-title {
+  font-family: var(--font-display);
+  color: var(--gold);
+  position: relative;
+  display: inline-block;
+  padding-bottom: 8px;
+}
+.section-title::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--emerald), var(--gold), transparent);
+  border-radius: 1px;
 }
 
 /* ── Layout helpers ────────────────────────────────────────────── */
@@ -339,3 +426,13 @@ input, textarea, select {
 .mt-md { margin-top: 16px; }
 .mt-lg { margin-top: 24px; }
 .mb-md { margin-bottom: 16px; }
+
+/* ── Page background texture ──────────────────────────────────── */
+#root {
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(46, 139, 87, 0.04) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(201, 168, 76, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 100%, rgba(26, 46, 34, 0.3) 0%, transparent 50%),
+    var(--midnight);
+  min-height: 100vh;
+}

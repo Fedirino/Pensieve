@@ -56,9 +56,9 @@ export default function ReadingGoal({ finishedCount, user }) {
       alignItems: "center",
       gap: 20,
       padding: "16px 20px",
-      background: "rgba(44,40,86,0.2)",
+      background: "rgba(26,46,34,0.2)",
       borderRadius: "var(--radius-lg)",
-      border: "1px solid rgba(182,174,219,0.06)",
+      border: "1px solid rgba(46,139,87,0.08)",
     }}>
       <svg width="100" height="70" viewBox="0 0 100 70">
         {/* Background arc */}

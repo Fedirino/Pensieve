@@ -20,7 +20,7 @@ export const GENRES = [
 
 export const STATUSES = ["Want to Read", "Reading", "Finished", "DNF"];
 
-export const APP_VERSION = "1.7.0";
+export const APP_VERSION = "1.8.0";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -77,10 +77,11 @@ export default function App() {
       <footer style={{
         textAlign: "center",
         padding: "16px",
-        color: "var(--lavender)",
-        opacity: 0.5,
+        color: "var(--emerald-dim, #1F5C3A)",
+        opacity: 0.6,
         fontSize: "0.8rem",
-        fontFamily: "var(--font-display)"
+        fontFamily: "var(--font-display)",
+        letterSpacing: "0.06em",
       }}>
         Pensieve v{APP_VERSION}
       </footer>

@@ -2,7 +2,7 @@
 
 A personal book-cataloging app with a magical-literary soul. Pensieve lets you scan book covers with AI to auto-fill your library, track what you're reading, set yearly goals, and get personalized recommendations based on your taste.
 
-The name comes from a memory basin, and the whole design leans into that idea: deep midnight tones, gold accents, mist that rises as your library grows. It's built for one person right now but designed with the possibility of opening up later.
+The name comes from a memory basin, and the design leans into a Slytherin library aesthetic: deep forest greens, emerald glows, antique gold accents, and mist that rises as your library grows. It's built for one person right now but designed with the possibility of opening up later.
 
 ## Tech
 

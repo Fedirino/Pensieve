@@ -84,7 +84,7 @@ export default function BookForm({ initial, onSave, onCancel, saving }) {
       </div>
       <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
         <input type="checkbox" checked={form.favorite} onChange={e => set("favorite", e.target.checked)}
-          style={{ accentColor: "var(--gold)" }} />
+          style={{ accentColor: "var(--emerald, #2E8B57)" }} />
         <span style={{ fontSize: "0.9rem", color: "var(--lavender)" }}>Favorite</span>
       </label>
       <div className="flex gap-sm" style={{ marginTop: 8 }}>

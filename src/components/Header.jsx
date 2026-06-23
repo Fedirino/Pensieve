@@ -16,22 +16,29 @@ export default function Header({ user }) {
 
   return (
     <header style={{
-      borderBottom: "1px solid rgba(182,174,219,0.08)",
-      background: "rgba(22,20,43,0.95)",
-      backdropFilter: "blur(8px)",
+      borderBottom: "1px solid rgba(46,139,87,0.1)",
+      background: "rgba(10,13,11,0.95)",
+      backdropFilter: "blur(12px)",
       position: "sticky",
       top: 0,
       zIndex: 100,
     }}>
-      <div className="container flex items-center justify-between" style={{ height: 60 }}>
+      {/* Subtle emerald accent line at top */}
+      <div style={{
+        height: 2,
+        background: "linear-gradient(90deg, transparent, var(--emerald-dim), var(--gold), var(--emerald-dim), transparent)",
+        opacity: 0.4,
+      }} />
+
+      <div className="container flex items-center justify-between" style={{ height: 58 }}>
         <Link to="/" style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <svg width="28" height="22" viewBox="0 0 80 60" fill="none">
             <path d="M8 12 C8 12 20 8 40 8 C60 8 72 12 72 12 L72 20 C72 20 68 44 40 44 C12 44 8 20 8 20 Z"
               stroke="var(--gold)" strokeWidth="2" fill="none" />
             <line x1="40" y1="8" x2="40" y2="44" stroke="var(--gold)" strokeWidth="1" opacity="0.5" />
-            <path d="M32 32 C30 22 34 14 30 4" stroke="var(--lavender)" strokeWidth="2.5" opacity="0.5"
+            <path d="M32 32 C30 22 34 14 30 4" stroke="var(--emerald)" strokeWidth="2.5" opacity="0.5"
               strokeLinecap="round" fill="none" />
-            <path d="M50 30 C52 20 48 12 52 2" stroke="var(--lavender)" strokeWidth="2.5" opacity="0.4"
+            <path d="M50 30 C52 20 48 12 52 2" stroke="var(--emerald)" strokeWidth="2.5" opacity="0.4"
               strokeLinecap="round" fill="none" />
           </svg>
           <span style={{
@@ -39,55 +46,61 @@ export default function Header({ user }) {
             fontSize: "1.3rem",
             color: "var(--gold)",
             fontWeight: 600,
-            letterSpacing: "0.04em",
+            letterSpacing: "0.05em",
           }}>
             Pensieve
           </span>
         </Link>
 
         <nav className="flex items-center gap-sm" style={{ display: "flex" }}>
-          {NAV.map(n => (
-            <Link
-              key={n.to}
-              to={n.to}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "6px 14px",
-                borderRadius: "var(--radius)",
-                fontSize: "0.9rem",
-                color: location.pathname === n.to ? "var(--gold)" : "var(--lavender)",
-                background: location.pathname === n.to ? "rgba(212,175,106,0.08)" : "transparent",
-                transition: "all var(--transition)",
-              }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d={n.icon} />
-              </svg>
-              <span className="nav-label">{n.label}</span>
-            </Link>
-          ))}
+          {NAV.map(n => {
+            const active = location.pathname === n.to;
+            return (
+              <Link
+                key={n.to}
+                to={n.to}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "6px 14px",
+                  borderRadius: "var(--radius)",
+                  fontSize: "0.9rem",
+                  color: active ? "var(--gold)" : "var(--lavender)",
+                  background: active ? "rgba(46,139,87,0.1)" : "transparent",
+                  borderBottom: active ? "2px solid var(--emerald)" : "2px solid transparent",
+                  transition: "all var(--transition)",
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d={n.icon} />
+                </svg>
+                <span className="nav-label">{n.label}</span>
+              </Link>
+            );
+          })}
 
           <div style={{ position: "relative", marginLeft: 8 }}>
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="btn-ghost"
               style={{
-                width: 32, height: 32, borderRadius: "50%",
+                width: 34, height: 34, borderRadius: "50%",
                 background: "var(--indigo)", display: "flex",
                 alignItems: "center", justifyContent: "center",
                 fontSize: "0.8rem", color: "var(--gold)",
+                border: "1px solid rgba(46,139,87,0.15)",
+                transition: "all var(--transition)",
               }}
             >
               {(user.displayName || user.email || "?")[0].toUpperCase()}
             </button>
             {menuOpen && (
               <div style={{
-                position: "absolute", right: 0, top: 40,
+                position: "absolute", right: 0, top: 42,
                 background: "var(--midnight-soft)",
-                border: "1px solid rgba(182,174,219,0.12)",
+                border: "1px solid rgba(46,139,87,0.15)",
                 borderRadius: "var(--radius)",
                 padding: 8, minWidth: 160,
                 boxShadow: "var(--shadow-lg)",

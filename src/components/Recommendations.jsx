@@ -36,12 +36,7 @@ export default function Recommendations({ books, addToast }) {
 
   return (
     <div className="container" style={{ paddingTop: 32, maxWidth: 720, margin: "0 auto" }}>
-      <h2 style={{
-        fontFamily: "var(--font-display)",
-        fontSize: "1.6rem",
-        color: "var(--gold)",
-        marginBottom: 8,
-      }}>
+      <h2 className="section-title" style={{ fontSize: "1.6rem", marginBottom: 8 }}>
         For You
       </h2>
       <p style={{ color: "var(--lavender)", fontSize: "0.9rem", marginBottom: 24, opacity: 0.7 }}>
@@ -57,7 +52,7 @@ export default function Recommendations({ books, addToast }) {
           </p>
           <button className="btn btn-primary" onClick={fetchRecs}
             disabled={eligibleBooks.length === 0}>
-            ✦ Get Recommendations
+            Get Recommendations
           </button>
         </div>
       )}
@@ -72,7 +67,11 @@ export default function Recommendations({ books, addToast }) {
               gap: 16,
               padding: 16,
             }}>
-              <div style={{ width: 70, height: 105, flexShrink: 0, borderRadius: "var(--radius)", overflow: "hidden" }}>
+              <div style={{
+                width: 70, height: 105, flexShrink: 0,
+                borderRadius: "var(--radius)", overflow: "hidden",
+                border: "1px solid rgba(46,139,87,0.08)",
+              }}>
                 {rec.cover ? (
                   <img src={rec.cover} alt={rec.title}
                     style={{ width: "100%", height: "100%", objectFit: "cover" }} />

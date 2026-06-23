@@ -93,12 +93,7 @@ export default function Library({ books, user, addToast }) {
       {/* Continue Reading shelf */}
       {reading.length > 0 && (
         <section style={{ marginBottom: 32 }}>
-          <h2 style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "1.3rem",
-            color: "var(--gold)",
-            marginBottom: 16,
-          }}>
+          <h2 className="section-title" style={{ fontSize: "1.3rem", marginBottom: 16 }}>
             Continue Reading
           </h2>
           <div style={{
@@ -174,10 +169,14 @@ export default function Library({ books, user, addToast }) {
       {/* Grid */}
       {filtered.length === 0 ? (
         <div style={{ textAlign: "center", padding: "64px 0" }}>
-          <svg width="60" height="45" viewBox="0 0 80 60" fill="none" style={{ opacity: 0.2, marginBottom: 12 }}>
+          <svg width="60" height="45" viewBox="0 0 80 60" fill="none" style={{ opacity: 0.15, marginBottom: 12 }}>
             <path d="M8 12 C8 12 20 8 40 8 C60 8 72 12 72 12 L72 20 C72 20 68 44 40 44 C12 44 8 20 8 20 Z"
               stroke="var(--gold)" strokeWidth="2" fill="none" />
             <line x1="40" y1="8" x2="40" y2="44" stroke="var(--gold)" strokeWidth="1" opacity="0.5" />
+            <path d="M32 32 C30 22 34 14 30 4" stroke="var(--emerald)" strokeWidth="2" opacity="0.3"
+              strokeLinecap="round" fill="none" />
+            <path d="M50 30 C52 20 48 12 52 2" stroke="var(--emerald)" strokeWidth="2" opacity="0.2"
+              strokeLinecap="round" fill="none" />
           </svg>
           <p style={{ color: "var(--lavender)", opacity: 0.5, fontFamily: "var(--font-display)" }}>
             {books.length === 0 ? "Your Pensieve is empty. Add a book or scan a cover to begin." : "No books match your filters."}

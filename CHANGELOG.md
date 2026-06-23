@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.8.0
+
+Gave the whole app a Slytherin Library makeover. The color palette swapped from the old midnight/lavender/indigo scheme to deep forest greens, emerald accents, and antique gold, like a candlelit library in the dungeons. Every surface, card, button, and progress bar reflects the new theme. Cards now have a subtle emerald glow on hover with a lift effect, buttons use gradient backgrounds, and inputs glow green when focused. The mist ribbons rising from the basin logo are emerald now instead of lavender.
+
+The login page got a more atmospheric treatment with layered radial gradients and gothic corner ornaments. The header has a thin emerald-to-gold accent line running across the top. Section headers throughout the app have a serpentine underline that fades from emerald to gold. Stat cards on the stats page each have a colored accent stripe that matches their category.
+
+For books that can't find cover art automatically, there's now a "Search Google Images" button on the book detail page that opens a pre-filled search in a new tab, and a "Paste Cover URL" option right below it so you can grab an image address and apply it without going into the full edit form. This is the practical fix for niche books like "Evidence of Lie" that exist on Google Images but not in any book cover database. The Google Custom Search API was considered but it's being deprecated in January 2027, so this manual-but-fast approach will last longer.
+
 ## v1.7.0
 
 Rewrote the app icons using Cairo for smooth vector rendering instead of the jagged Pillow line segments from before. The basin shape now matches the header icon cleanly at every size.

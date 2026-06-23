@@ -18,26 +18,37 @@ export default function Stats({ books }) {
       ? (books.filter(b => b.rating > 0).reduce((s, b) => s + b.rating, 0) / books.filter(b => b.rating > 0).length).toFixed(1)
       : "—";
 
-    // Genre breakdown
     const genreCounts = {};
     books.forEach(b => {
       genreCounts[b.genre] = (genreCounts[b.genre] || 0) + 1;
     });
-    const genres = Object.entries(genreCounts)
-      .sort((a, b) => b[1] - a[1]);
+    const genres = Object.entries(genreCounts).sort((a, b) => b[1] - a[1]);
     const maxGenreCount = genres.length > 0 ? genres[0][1] : 1;
 
     return { total, finished, reading, wantToRead, dnf, favorites, totalPages, pagesRead, avgRating, genres, maxGenreCount };
   }, [books]);
 
-  const StatCard = ({ label, value, color = "var(--gold)" }) => (
+  const StatCard = ({ label, value, color = "var(--gold)", accent = "var(--emerald-dim)" }) => (
     <div style={{
       padding: 16,
-      background: "rgba(44,40,86,0.2)",
+      background: "rgba(26,46,34,0.2)",
       borderRadius: "var(--radius)",
-      border: "1px solid rgba(182,174,219,0.06)",
+      border: "1px solid rgba(46,139,87,0.06)",
       textAlign: "center",
+      position: "relative",
+      overflow: "hidden",
+      transition: "all var(--transition)",
     }}>
+      {/* Subtle top accent */}
+      <div style={{
+        position: "absolute",
+        top: 0,
+        left: "20%",
+        right: "20%",
+        height: 2,
+        background: `linear-gradient(90deg, transparent, ${accent}, transparent)`,
+        opacity: 0.3,
+      }} />
       <div style={{
         fontFamily: "var(--font-display)",
         fontSize: "1.8rem",
@@ -59,12 +70,7 @@ export default function Stats({ books }) {
 
   return (
     <div className="container" style={{ paddingTop: 32, maxWidth: 720, margin: "0 auto" }}>
-      <h2 style={{
-        fontFamily: "var(--font-display)",
-        fontSize: "1.6rem",
-        color: "var(--gold)",
-        marginBottom: 24,
-      }}>
+      <h2 className="section-title" style={{ fontSize: "1.6rem", marginBottom: 24 }}>
         Your Reading Stats
       </h2>
 
@@ -74,7 +80,6 @@ export default function Stats({ books }) {
         </p>
       ) : (
         <>
-          {/* Summary grid */}
           <div style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))",
@@ -82,22 +87,16 @@ export default function Stats({ books }) {
             marginBottom: 32,
           }}>
             <StatCard label="Total Books" value={stats.total} />
-            <StatCard label="Finished" value={stats.finished} color="#7ec87e" />
-            <StatCard label="Reading" value={stats.reading} />
-            <StatCard label="Want to Read" value={stats.wantToRead} color="var(--lavender)" />
-            <StatCard label="DNF" value={stats.dnf} color="#c87e7e" />
+            <StatCard label="Finished" value={stats.finished} color="#5EAF5E" accent="#5EAF5E" />
+            <StatCard label="Reading" value={stats.reading} color="var(--emerald)" accent="var(--emerald)" />
+            <StatCard label="Want to Read" value={stats.wantToRead} color="var(--lavender)" accent="var(--lavender)" />
+            <StatCard label="DNF" value={stats.dnf} color="#b86868" accent="#b86868" />
             <StatCard label="Favorites" value={stats.favorites} />
             <StatCard label="Pages Read" value={stats.pagesRead.toLocaleString()} />
             <StatCard label="Avg Rating" value={stats.avgRating} />
           </div>
 
-          {/* Genre breakdown */}
-          <h3 style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "1.2rem",
-            color: "var(--gold)",
-            marginBottom: 16,
-          }}>
+          <h3 className="section-title" style={{ fontSize: "1.2rem", marginBottom: 16 }}>
             Genre Breakdown
           </h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -122,7 +121,7 @@ export default function Stats({ books }) {
                   <div style={{
                     height: "100%",
                     width: `${(count / stats.maxGenreCount) * 100}%`,
-                    background: "linear-gradient(90deg, var(--gold), var(--gold-soft))",
+                    background: "linear-gradient(90deg, var(--emerald-dim), var(--emerald), var(--gold))",
                     borderRadius: 4,
                     transition: "width 0.3s ease",
                     minWidth: 20,

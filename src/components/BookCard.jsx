@@ -5,9 +5,9 @@ import BookPlaceholder from "./BookPlaceholder";
 
 const STATUS_COLORS = {
   "Want to Read": "var(--lavender)",
-  "Reading": "var(--gold)",
-  "Finished": "#7ec87e",
-  "DNF": "#c87e7e",
+  "Reading": "var(--emerald)",
+  "Finished": "#5EAF5E",
+  "DNF": "#b86868",
 };
 
 export default function BookCard({ book }) {
@@ -25,7 +25,13 @@ export default function BookCard({ book }) {
         overflow: "hidden",
       }}>
         {/* Cover */}
-        <div style={{ width: "100%", aspectRatio: "2/3", position: "relative", flexShrink: 0 }}>
+        <div style={{
+          width: "100%",
+          aspectRatio: "2/3",
+          position: "relative",
+          flexShrink: 0,
+          overflow: "hidden",
+        }}>
           {book.cover ? (
             <img
               src={book.cover}
@@ -35,8 +41,11 @@ export default function BookCard({ book }) {
                 height: "100%",
                 objectFit: "cover",
                 borderRadius: "var(--radius-lg) var(--radius-lg) 0 0",
+                transition: "transform 0.4s ease",
               }}
               loading="lazy"
+              onMouseOver={e => e.currentTarget.style.transform = "scale(1.03)"}
+              onMouseOut={e => e.currentTarget.style.transform = "scale(1)"}
             />
           ) : (
             <BookPlaceholder title={book.title} author={book.author} genre={book.genre} />
@@ -46,10 +55,12 @@ export default function BookCard({ book }) {
           {book.favorite && (
             <span style={{
               position: "absolute", top: 8, right: 8,
-              background: "rgba(22,20,43,0.7)",
+              background: "rgba(10,13,11,0.75)",
               borderRadius: "50%", width: 26, height: 26,
               display: "flex", alignItems: "center", justifyContent: "center",
               fontSize: "0.85rem",
+              color: "var(--gold)",
+              border: "1px solid rgba(201,168,76,0.2)",
             }}>
               ★
             </span>
@@ -58,13 +69,14 @@ export default function BookCard({ book }) {
           {/* Status badge */}
           <span style={{
             position: "absolute", bottom: 8, left: 8,
-            background: "rgba(22,20,43,0.8)",
+            background: "rgba(10,13,11,0.82)",
             color: STATUS_COLORS[book.status] || "var(--silver)",
             fontSize: "0.7rem",
             padding: "3px 8px",
             borderRadius: 4,
             fontWeight: 500,
             letterSpacing: "0.02em",
+            borderLeft: `2px solid ${STATUS_COLORS[book.status] || "var(--silver)"}`,
           }}>
             {book.status}
           </span>
@@ -113,7 +125,7 @@ export default function BookCard({ book }) {
                   <div style={{
                     height: "100%",
                     width: `${progress}%`,
-                    background: "linear-gradient(90deg, var(--gold), var(--lavender))",
+                    background: "linear-gradient(90deg, var(--emerald-dim), var(--emerald), var(--gold))",
                     borderRadius: 2,
                     transition: "width 0.3s ease",
                   }} />

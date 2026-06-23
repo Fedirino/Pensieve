@@ -15,6 +15,8 @@ export default function BookDetail({ books, user, addToast }) {
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [refreshingCover, setRefreshingCover] = useState(false);
+  const [showCoverPaste, setShowCoverPaste] = useState(false);
+  const [coverUrl, setCoverUrl] = useState("");
 
   const book = useMemo(() => books.find(b => b.id === id), [books, id]);
 
@@ -76,14 +78,14 @@ export default function BookDetail({ books, user, addToast }) {
   };
 
   const progress = book.pages > 0 ? Math.round((book.currentPage / book.pages) * 100) : 0;
-  const avgPagesPerDay = 30; // rough estimate
+  const avgPagesPerDay = 30;
   const pagesLeft = Math.max(0, (book.pages || 0) - (book.currentPage || 0));
   const estDays = pagesLeft > 0 ? Math.ceil(pagesLeft / avgPagesPerDay) : 0;
 
   if (editing) {
     return (
       <div className="container" style={{ paddingTop: 32, maxWidth: 560 }}>
-        <h2 style={{ color: "var(--gold)", fontFamily: "var(--font-display)", marginBottom: 20 }}>
+        <h2 className="section-title" style={{ fontSize: "1.4rem", marginBottom: 20 }}>
           Edit Book
         </h2>
         <BookForm initial={book} onSave={handleSave} onCancel={() => setEditing(false)} saving={saving} />
@@ -101,7 +103,14 @@ export default function BookDetail({ books, user, addToast }) {
       <div style={{ display: "flex", gap: 32, flexWrap: "wrap" }}>
         {/* Cover */}
         <div style={{ width: 220, flexShrink: 0 }}>
-          <div style={{ width: "100%", aspectRatio: "2/3", borderRadius: "var(--radius-lg)", overflow: "hidden" }}>
+          <div style={{
+            width: "100%",
+            aspectRatio: "2/3",
+            borderRadius: "var(--radius-lg)",
+            overflow: "hidden",
+            border: "1px solid rgba(46,139,87,0.1)",
+            boxShadow: "var(--shadow-lg)",
+          }}>
             {book.cover ? (
               <img src={book.cover} alt={book.title}
                 style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -109,16 +118,64 @@ export default function BookDetail({ books, user, addToast }) {
               <BookPlaceholder title={book.title} author={book.author} genre={book.genre} />
             )}
           </div>
-          {!book.cover && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>
+            {!book.cover && (
+              <button
+                className="btn btn-secondary"
+                onClick={refreshCover}
+                disabled={refreshingCover}
+                style={{ width: "100%", justifyContent: "center", fontSize: "0.82rem" }}
+              >
+                {refreshingCover ? "Searching..." : "Find Cover"}
+              </button>
+            )}
             <button
-              className="btn btn-secondary"
-              onClick={refreshCover}
-              disabled={refreshingCover}
-              style={{ marginTop: 8, width: "100%", justifyContent: "center", fontSize: "0.82rem" }}
+              className="btn btn-ghost"
+              onClick={() => {
+                const q = encodeURIComponent(`${book.title} ${book.author} book cover`);
+                window.open(`https://www.google.com/search?tbm=isch&q=${q}`, "_blank");
+              }}
+              style={{ width: "100%", justifyContent: "center", fontSize: "0.78rem", opacity: 0.7 }}
             >
-              {refreshingCover ? "Searching..." : "Find Cover"}
+              Search Google Images
             </button>
-          )}
+            {!showCoverPaste ? (
+              <button
+                className="btn btn-ghost"
+                onClick={() => setShowCoverPaste(true)}
+                style={{ width: "100%", justifyContent: "center", fontSize: "0.78rem", opacity: 0.5 }}
+              >
+                Paste Cover URL
+              </button>
+            ) : (
+              <div style={{ display: "flex", gap: 4 }}>
+                <input
+                  className="input"
+                  placeholder="https://..."
+                  value={coverUrl}
+                  onChange={e => setCoverUrl(e.target.value)}
+                  style={{ flex: 1, padding: "6px 8px", fontSize: "0.8rem" }}
+                />
+                <button
+                  className="btn btn-primary"
+                  style={{ padding: "6px 10px", fontSize: "0.78rem" }}
+                  onClick={async () => {
+                    if (!coverUrl.trim()) return;
+                    try {
+                      await updateDoc(ref, { cover: coverUrl.trim() });
+                      addToast("Cover updated!");
+                      setShowCoverPaste(false);
+                      setCoverUrl("");
+                    } catch (err) {
+                      addToast("Failed: " + err.message, "error");
+                    }
+                  }}
+                >
+                  Save
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Details */}
@@ -154,15 +211,17 @@ export default function BookDetail({ books, user, addToast }) {
               borderRadius: "var(--radius)",
               fontSize: "0.8rem",
               color: "var(--lavender)",
+              borderLeft: "2px solid var(--emerald-dim)",
             }}>
               {book.genre}
             </span>
             <span style={{
               padding: "4px 12px",
-              background: "rgba(212,175,106,0.1)",
+              background: "rgba(201,168,76,0.08)",
               borderRadius: "var(--radius)",
               fontSize: "0.8rem",
               color: "var(--gold)",
+              borderLeft: "2px solid var(--gold)",
             }}>
               {book.status}
             </span>
@@ -178,15 +237,16 @@ export default function BookDetail({ books, user, addToast }) {
           {book.status === "Reading" && book.pages > 0 && (
             <div style={{
               padding: 16,
-              background: "rgba(44,40,86,0.2)",
+              background: "rgba(26,46,34,0.25)",
               borderRadius: "var(--radius)",
               marginBottom: 16,
+              border: "1px solid rgba(46,139,87,0.08)",
             }}>
               <div className="flex justify-between items-center" style={{ marginBottom: 8 }}>
                 <span style={{ fontSize: "0.85rem", color: "var(--lavender)" }}>
                   Reading Progress
                 </span>
-                <span style={{ fontSize: "0.85rem", color: "var(--gold)" }}>
+                <span style={{ fontSize: "0.85rem", color: "var(--emerald)" }}>
                   {progress}%
                 </span>
               </div>
@@ -200,7 +260,7 @@ export default function BookDetail({ books, user, addToast }) {
                 <div style={{
                   height: "100%",
                   width: `${progress}%`,
-                  background: "linear-gradient(90deg, var(--gold), var(--lavender))",
+                  background: "linear-gradient(90deg, var(--emerald-dim), var(--emerald), var(--gold))",
                   borderRadius: 3,
                   transition: "width 0.3s ease",
                 }} />
@@ -231,12 +291,7 @@ export default function BookDetail({ books, user, addToast }) {
 
           {book.notes && (
             <div style={{ marginBottom: 16 }}>
-              <h3 style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "1rem",
-                color: "var(--gold)",
-                marginBottom: 6,
-              }}>
+              <h3 className="section-title" style={{ fontSize: "1rem", marginBottom: 10 }}>
                 Notes
               </h3>
               <p style={{

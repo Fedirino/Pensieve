@@ -1,21 +1,21 @@
 import React from "react";
 
-// Genre-inspired color palettes (background gradient start, accent line)
+// Slytherin library genre palettes (dark greens, teals, forest tones)
 const GENRE_PALETTES = {
-  "Fiction":      ["#2A1F4E", "#3D2D6B"],
-  "Non-Fiction":  ["#1E2A3A", "#2A3F55"],
-  "Sci-Fi":       ["#1A2535", "#1F3A4D"],
-  "Fantasy":      ["#2D1F3D", "#4A2D5E"],
-  "Mystery":      ["#1F1A2E", "#2D2440"],
-  "Romance":      ["#3A1F2E", "#4D2A3D"],
-  "History":      ["#2A2418", "#3D3525"],
-  "Science":      ["#1A2A2A", "#243D3D"],
-  "Philosophy":   ["#252030", "#383048"],
-  "Biography":    ["#2A2220", "#3D3230"],
-  "Self-Help":    ["#1F2A25", "#2A3D35"],
-  "Poetry":       ["#2A1F35", "#3D2D4A"],
-  "Art":          ["#2D2225", "#452D35"],
-  "Other":        ["#222035", "#30284A"],
+  "Fiction":      ["#0D1F15", "#1A3828"],
+  "Non-Fiction":  ["#121D18", "#1E3025"],
+  "Sci-Fi":       ["#0D1A1A", "#163030"],
+  "Fantasy":      ["#141F1A", "#1F3528"],
+  "Mystery":      ["#0F1510", "#1A251C"],
+  "Romance":      ["#1A1518", "#2D2025"],
+  "History":      ["#181A10", "#2A2D18"],
+  "Science":      ["#0F1A18", "#182E28"],
+  "Philosophy":   ["#121815", "#1E2D22"],
+  "Biography":    ["#151815", "#252E25"],
+  "Self-Help":    ["#101D15", "#1A3020"],
+  "Poetry":       ["#121A18", "#1E302A"],
+  "Art":          ["#181518", "#2D2230"],
+  "Other":        ["#111A15", "#1E2E22"],
 };
 
 function hashStr(s) {
@@ -25,10 +25,8 @@ function hashStr(s) {
 export default function BookPlaceholder({ title = "", author = "", genre = "", style = {} }) {
   const palette = GENRE_PALETTES[genre] || GENRE_PALETTES["Other"];
   const hash = hashStr(title + author);
-  // Slight rotation variation per book
   const angle = 130 + (hash % 40);
 
-  // Split title for display (show up to 3 lines)
   const displayTitle = title || "Untitled";
   const displayAuthor = author || "";
 
@@ -42,21 +40,21 @@ export default function BookPlaceholder({ title = "", author = "", genre = "", s
       alignItems: "center",
       justifyContent: "space-between",
       borderRadius: "var(--radius)",
-      border: "1px solid rgba(212,175,106,0.12)",
+      border: "1px solid rgba(46,139,87,0.12)",
       position: "relative",
       overflow: "hidden",
       padding: "15% 10% 12%",
       boxSizing: "border-box",
       ...style,
     }}>
-      {/* Decorative top line */}
+      {/* Decorative top line — emerald/gold */}
       <div style={{
         position: "absolute",
         top: "8%",
         left: "15%",
         right: "15%",
         height: 1,
-        background: "linear-gradient(90deg, transparent, var(--gold), transparent)",
+        background: "linear-gradient(90deg, transparent, var(--emerald-dim), var(--gold), var(--emerald-dim), transparent)",
         opacity: 0.3,
       }} />
 
@@ -82,7 +80,7 @@ export default function BookPlaceholder({ title = "", author = "", genre = "", s
         <span style={{
           fontFamily: "var(--font-display)",
           fontSize: "clamp(0.55rem, 2.5vw, 0.85rem)",
-          color: "var(--gold-soft, #E8CC8E)",
+          color: "var(--gold-soft, #DDBE68)",
           fontWeight: 600,
           lineHeight: 1.3,
           textAlign: "center",
@@ -100,8 +98,8 @@ export default function BookPlaceholder({ title = "", author = "", genre = "", s
       <div style={{
         width: "40%",
         height: 1,
-        background: "var(--gold)",
-        opacity: 0.25,
+        background: "linear-gradient(90deg, transparent, var(--emerald), transparent)",
+        opacity: 0.3,
         margin: "6% 0",
         flexShrink: 0,
       }} />
@@ -131,7 +129,7 @@ export default function BookPlaceholder({ title = "", author = "", genre = "", s
         left: "15%",
         right: "15%",
         height: 1,
-        background: "linear-gradient(90deg, transparent, var(--gold), transparent)",
+        background: "linear-gradient(90deg, transparent, var(--emerald-dim), var(--gold), var(--emerald-dim), transparent)",
         opacity: 0.3,
       }} />
     </div>
