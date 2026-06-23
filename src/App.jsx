@@ -20,7 +20,7 @@ export const GENRES = [
 
 export const STATUSES = ["Want to Read", "Reading", "Finished", "DNF"];
 
-export const APP_VERSION = "1.8.0";
+export const APP_VERSION = "1.8.1";
 
 export default function App() {
   const [user, setUser] = useState(null);

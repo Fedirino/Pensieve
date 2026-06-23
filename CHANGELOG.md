@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.8.1
+
+You can now upload cover images directly from your device. On any book's detail page there's an "Upload Cover" button (or "Replace Cover" if it already has one). Download the image from Amazon or wherever, then upload it straight to the app. Images are stored in Firebase Storage under your account. The old "paste URL" approach is gone in favor of this since getting usable image URLs from Google Images was more hassle than it was worth.
+
+Fixed wrong cover matching. "Evidence of Lie" by Lila Ferrari was pulling a cover for a different book because the title matching was too loose. Tightened it up: titles now need a 70% word match instead of 50%, short titles (3 words or fewer) require nearly exact matches, and the author's last name is validated against Google Books and Open Library results. This should prevent the system from confidently returning a wrong book's cover.
+
+The CI pipeline now also deploys Firebase Storage security rules alongside hosting, functions, and Firestore rules.
+
 ## v1.8.0
 
 Gave the whole app a Slytherin Library makeover. The color palette swapped from the old midnight/lavender/indigo scheme to deep forest greens, emerald accents, and antique gold, like a candlelit library in the dungeons. Every surface, card, button, and progress bar reflects the new theme. Cards now have a subtle emerald glow on hover with a lift effect, buttons use gradient backgrounds, and inputs glow green when focused. The mist ribbons rising from the basin logo are emerald now instead of lavender.

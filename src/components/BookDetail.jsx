@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
-import { db, functions } from "../firebase";
+import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import { db, functions, storage } from "../firebase";
 import BookForm from "./BookForm";
 import BookPlaceholder from "./BookPlaceholder";
 import StarRating from "./StarRating";
@@ -15,19 +16,19 @@ export default function BookDetail({ books, user, addToast }) {
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [refreshingCover, setRefreshingCover] = useState(false);
-  const [showCoverPaste, setShowCoverPaste] = useState(false);
-  const [coverUrl, setCoverUrl] = useState("");
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const fileInputRef = useRef(null);
 
   const book = useMemo(() => books.find(b => b.id === id), [books, id]);
 
   if (!book) return <MistLoader text="Searching the mist..." />;
 
-  const ref = doc(db, "users", user.uid, "books", id);
+  const bookRef = doc(db, "users", user.uid, "books", id);
 
   const handleSave = async (data) => {
     setSaving(true);
     try {
-      await updateDoc(ref, data);
+      await updateDoc(bookRef, data);
       setEditing(false);
       addToast("Book updated");
     } catch (err) {
@@ -38,7 +39,7 @@ export default function BookDetail({ books, user, addToast }) {
 
   const handleDelete = async () => {
     try {
-      await deleteDoc(ref);
+      await deleteDoc(bookRef);
       addToast("Book removed");
       navigate("/");
     } catch (err) {
@@ -53,7 +54,7 @@ export default function BookDetail({ books, user, addToast }) {
       const res = await resolveFn({ title: book.title, author: book.author, isbn13: book.isbn13 || "" });
       const cover = res.data.cover;
       if (cover) {
-        await updateDoc(ref, { cover });
+        await updateDoc(bookRef, { cover });
         addToast("Cover updated!");
       } else {
         addToast("No cover found for this book", "error");
@@ -64,16 +65,46 @@ export default function BookDetail({ books, user, addToast }) {
     setRefreshingCover(false);
   };
 
+  const handleCoverUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      addToast("Please select an image file", "error");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      addToast("Image must be under 5MB", "error");
+      return;
+    }
+
+    setUploadingCover(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `covers/${user.uid}/${id}.${ext}`;
+      const sRef = storageRef(storage, path);
+      await uploadBytes(sRef, file);
+      const url = await getDownloadURL(sRef);
+      await updateDoc(bookRef, { cover: url });
+      addToast("Cover uploaded!");
+    } catch (err) {
+      addToast("Upload failed: " + err.message, "error");
+    }
+    setUploadingCover(false);
+    // Reset input so same file can be re-selected
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const toggleFavorite = async () => {
     try {
-      await updateDoc(ref, { favorite: !book.favorite });
+      await updateDoc(bookRef, { favorite: !book.favorite });
     } catch {}
   };
 
   const updatePage = async (page) => {
     const p = Math.max(0, Math.min(parseInt(page, 10) || 0, book.pages || 99999));
     try {
-      await updateDoc(ref, { currentPage: p });
+      await updateDoc(bookRef, { currentPage: p });
     } catch {}
   };
 
@@ -118,7 +149,18 @@ export default function BookDetail({ books, user, addToast }) {
               <BookPlaceholder title={book.title} author={book.author} genre={book.genre} />
             )}
           </div>
+
+          {/* Cover action buttons */}
           <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleCoverUpload}
+              style={{ display: "none" }}
+            />
+
             {!book.cover && (
               <button
                 className="btn btn-secondary"
@@ -129,6 +171,16 @@ export default function BookDetail({ books, user, addToast }) {
                 {refreshingCover ? "Searching..." : "Find Cover"}
               </button>
             )}
+
+            <button
+              className="btn btn-secondary"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadingCover}
+              style={{ width: "100%", justifyContent: "center", fontSize: "0.82rem" }}
+            >
+              {uploadingCover ? "Uploading..." : book.cover ? "Replace Cover" : "Upload Cover"}
+            </button>
+
             <button
               className="btn btn-ghost"
               onClick={() => {
@@ -139,42 +191,6 @@ export default function BookDetail({ books, user, addToast }) {
             >
               Search Google Images
             </button>
-            {!showCoverPaste ? (
-              <button
-                className="btn btn-ghost"
-                onClick={() => setShowCoverPaste(true)}
-                style={{ width: "100%", justifyContent: "center", fontSize: "0.78rem", opacity: 0.5 }}
-              >
-                Paste Cover URL
-              </button>
-            ) : (
-              <div style={{ display: "flex", gap: 4 }}>
-                <input
-                  className="input"
-                  placeholder="https://..."
-                  value={coverUrl}
-                  onChange={e => setCoverUrl(e.target.value)}
-                  style={{ flex: 1, padding: "6px 8px", fontSize: "0.8rem" }}
-                />
-                <button
-                  className="btn btn-primary"
-                  style={{ padding: "6px 10px", fontSize: "0.78rem" }}
-                  onClick={async () => {
-                    if (!coverUrl.trim()) return;
-                    try {
-                      await updateDoc(ref, { cover: coverUrl.trim() });
-                      addToast("Cover updated!");
-                      setShowCoverPaste(false);
-                      setCoverUrl("");
-                    } catch (err) {
-                      addToast("Failed: " + err.message, "error");
-                    }
-                  }}
-                >
-                  Save
-                </button>
-              </div>
-            )}
           </div>
         </div>
 

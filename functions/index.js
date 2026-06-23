@@ -4,20 +4,43 @@ const Anthropic = require("@anthropic-ai/sdk").default;
 
 const anthropicKey = defineSecret("ANTHROPIC_API_KEY");
 
-// ── Fuzzy title match ───────────────────────────────────────────────
+// ── Normalize helper ───────────────────────────────────────────────
+function normalize(s) {
+  return s.toLowerCase().replace(/[^a-z0-9]/g, " ").replace(/\s+/g, " ").trim();
+}
+
+// ── Strict title match ─────────────────────────────────────────────
+// Requires either exact containment OR high word overlap (>= 70%).
+// The old 50% threshold was matching wrong books (e.g. "Evidence of Lie"
+// matching "Evidence of Lies" by a different author).
 function titlesMatch(a, b) {
-  const normalize = (s) =>
-    s.toLowerCase().replace(/[^a-z0-9]/g, " ").replace(/\s+/g, " ").trim();
   const na = normalize(a);
   const nb = normalize(b);
-  // Either one contains the other, or they share enough words
+  if (na === nb) return true;
   if (na.includes(nb) || nb.includes(na)) return true;
-  const wordsA = new Set(na.split(" ").filter((w) => w.length > 2));
+  const wordsA = na.split(" ").filter((w) => w.length > 2);
   const wordsB = new Set(nb.split(" ").filter((w) => w.length > 2));
-  if (wordsA.size === 0 || wordsB.size === 0) return false;
+  if (wordsA.length === 0 || wordsB.size === 0) return false;
   let overlap = 0;
   for (const w of wordsA) if (wordsB.has(w)) overlap++;
-  return overlap / Math.min(wordsA.size, wordsB.size) >= 0.5;
+  // Require at least 70% of the SMALLER set's words to match
+  const ratio = overlap / Math.min(wordsA.length, wordsB.size);
+  // Also require at least 2 matching words for short titles to avoid false positives
+  if (wordsA.length <= 3 && overlap < Math.min(wordsA.length, wordsB.size)) return false;
+  return ratio >= 0.7;
+}
+
+// ── Author match ───────────────────────────────────────────────────
+// Checks if the last name matches at minimum.
+function authorsMatch(a, b) {
+  if (!a || !b) return true; // No author to check, allow it
+  const na = normalize(a);
+  const nb = normalize(b);
+  if (na.includes(nb) || nb.includes(na)) return true;
+  // Last-name comparison
+  const lastA = na.split(" ").pop();
+  const lastB = nb.split(" ").pop();
+  return lastA === lastB && lastA.length > 2;
 }
 
 // ── Cover image resolution ──────────────────────────────────────────
@@ -49,7 +72,9 @@ async function resolveCoverUrl(title, author, isbn13) {
       for (const item of data.items) {
         const info = item.volumeInfo || {};
         const resultTitle = info.title || "";
+        const resultAuthors = (info.authors || []).join(" ");
         if (!titlesMatch(resultTitle, title)) continue;
+        if (!authorsMatch(resultAuthors, author)) continue;
 
         // Collect any ISBNs from this result
         if (info.industryIdentifiers) {
@@ -112,6 +137,7 @@ async function resolveCoverUrl(title, author, isbn13) {
   }
 
   // 2b. Open Library title-only search (last resort for books with wrong/unusual author names)
+  // Still validates author name when available to avoid pulling the wrong book's cover
   try {
     const searchUrl = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&limit=5`;
     const res = await fetch(searchUrl);
@@ -119,6 +145,9 @@ async function resolveCoverUrl(title, author, isbn13) {
     if (data.docs?.length) {
       for (const doc of data.docs) {
         if (!titlesMatch(doc.title || "", title)) continue;
+        // Check author if available — title-only search is where wrong matches happen
+        const docAuthor = (doc.author_name || []).join(" ");
+        if (author && docAuthor && !authorsMatch(docAuthor, author)) continue;
         if (doc.cover_i) {
           return `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`;
         }
