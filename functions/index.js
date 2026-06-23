@@ -75,26 +75,60 @@ async function resolveCoverUrl(title, author, isbn13) {
   const shortTitle = title.split(/[:\-–—]/)[0].trim();
   if (shortTitle !== title && shortTitle.length > 5) titleVariants.push(shortTitle);
 
+  // Author variants: try full name, then stripped middle initials, then last name only
+  const authorVariants = [author];
+  const authorParts = author.trim().split(/\s+/);
+  if (authorParts.length > 2) {
+    // "Marsha M. Linehan" → "Marsha Linehan"
+    authorVariants.push(`${authorParts[0]} ${authorParts[authorParts.length - 1]}`);
+  }
+  if (authorParts.length > 1) {
+    // Last name only
+    authorVariants.push(authorParts[authorParts.length - 1]);
+  }
+
   for (const t of titleVariants) {
-    try {
-      const searchUrl = `https://openlibrary.org/search.json?title=${encodeURIComponent(t)}&author=${encodeURIComponent(author)}&limit=5`;
-      const res = await fetch(searchUrl);
-      const data = await res.json();
-      if (data.docs?.length) {
-        for (const doc of data.docs) {
-          if (!titlesMatch(doc.title || "", title)) continue;
-          if (doc.cover_i) {
-            return `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`;
-          }
-          // Collect ISBNs for Amazon fallback
-          if (doc.isbn?.length) {
-            for (const i of doc.isbn) isbns.add(i);
+    for (const a of authorVariants) {
+      try {
+        const searchUrl = `https://openlibrary.org/search.json?title=${encodeURIComponent(t)}&author=${encodeURIComponent(a)}&limit=5`;
+        const res = await fetch(searchUrl);
+        const data = await res.json();
+        if (data.docs?.length) {
+          for (const doc of data.docs) {
+            if (!titlesMatch(doc.title || "", title)) continue;
+            if (doc.cover_i) {
+              return `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`;
+            }
+            // Collect ISBNs for Amazon fallback
+            if (doc.isbn?.length) {
+              for (const i of doc.isbn) isbns.add(i);
+            }
           }
         }
+      } catch (e) {
+        console.warn("Open Library search failed:", e.message);
       }
-    } catch (e) {
-      console.warn("Open Library search failed:", e.message);
     }
+  }
+
+  // 2b. Open Library title-only search (last resort for books with wrong/unusual author names)
+  try {
+    const searchUrl = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&limit=5`;
+    const res = await fetch(searchUrl);
+    const data = await res.json();
+    if (data.docs?.length) {
+      for (const doc of data.docs) {
+        if (!titlesMatch(doc.title || "", title)) continue;
+        if (doc.cover_i) {
+          return `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`;
+        }
+        if (doc.isbn?.length) {
+          for (const i of doc.isbn) isbns.add(i);
+        }
+      }
+    }
+  } catch (e) {
+    console.warn("Open Library title-only search failed:", e.message);
   }
 
   // 3. Open Library — try all known ISBNs (GET, check size to skip 1x1 placeholders)

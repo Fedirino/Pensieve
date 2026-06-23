@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.7.0
+
+Rewrote the app icons using Cairo for smooth vector rendering instead of the jagged Pillow line segments from before. The basin shape now matches the header icon cleanly at every size.
+
+Cover resolution now handles author name variations. If "Marsha M. Linehan" doesn't find a match, it tries "Marsha Linehan" and then just "Linehan." Also added a title-only Open Library search as a last resort for books where the author name in the database doesn't match what's on file. Books like the Linehan DBT textbook that were still failing should resolve now.
+
+Some books like "Evidence of Lies" and magazine special issues genuinely aren't in any cover database and will keep their styled placeholder covers.
+
 ## v1.6.0
 
 Regenerated all app icons to be a pixel-perfect match of the header icon: the gold basin outline with two lavender mist wisps rising above the spine line, on the midnight background.
