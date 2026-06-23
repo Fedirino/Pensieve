@@ -1,0 +1,27 @@
+{
+  "name": "Pensieve — a reading mind",
+  "short_name": "Pensieve",
+  "description": "Your personal book-cataloging companion",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#16142B",
+  "theme_color": "#16142B",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

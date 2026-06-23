@@ -35,6 +35,6 @@ jobs:
         run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > /tmp/sa-key.json
 
       - name: Deploy Functions and Firestore rules
-        run: npx firebase-tools deploy --only functions,firestore --project pensieve-readingmind
+        run: npx firebase-tools deploy --only functions,firestore --project pensieve-readingmind --force
         env:
           GOOGLE_APPLICATION_CREDENTIALS: /tmp/sa-key.json

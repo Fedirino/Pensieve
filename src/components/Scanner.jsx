@@ -6,6 +6,31 @@ import { functions, db } from "../firebase";
 import MistLoader from "./MistLoader";
 import BookPlaceholder from "./BookPlaceholder";
 
+// Resize image to max dimension while preserving aspect ratio, returns {base64, mediaType}
+function resizeImage(file, maxDim = 1600) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > maxDim || height > maxDim) {
+        const scale = maxDim / Math.max(width, height);
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+      // Use JPEG at 85% quality for a good size/quality tradeoff
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+      const base64 = dataUrl.split(",")[1];
+      resolve({ base64, mediaType: "image/jpeg" });
+    };
+    img.src = URL.createObjectURL(file);
+  });
+}
+
 export default function Scanner({ user, addToast }) {
   const navigate = useNavigate();
   const fileRef = useRef();
@@ -23,19 +48,15 @@ export default function Scanner({ user, addToast }) {
     reader.onload = () => setPreview(reader.result);
     reader.readAsDataURL(file);
 
-    // Convert to base64
     setScanning(true);
     setResults(null);
 
     try {
-      const arrayBuf = await file.arrayBuffer();
-      const bytes = new Uint8Array(arrayBuf);
-      let binary = "";
-      for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-      const base64 = btoa(binary);
+      // Resize image to consistent dimensions before sending
+      const { base64, mediaType } = await resizeImage(file, 1600);
 
       const scanFn = httpsCallable(functions, "scanBookCover");
-      const res = await scanFn({ imageBase64: base64, mediaType: file.type || "image/jpeg" });
+      const res = await scanFn({ imageBase64: base64, mediaType });
       setResults(res.data.books || []);
 
       if (res.data.books?.length === 0) {

@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.1.0
+
+Focused on making the book scanner actually reliable. The AI prompt now reads all visible text on the cover before identifying the book, so it catches subtitles, series names, and edition info instead of guessing from the main title alone. Photos get resized to a consistent resolution before hitting the API, which helps with both oversized phone camera shots and tiny thumbnails.
+
+Cover art resolution got smarter too. Google Books results are now cross-checked against the title the AI identified, so you won't get a random edition's cover for the wrong book. Added an Open Library title search as a third fallback when ISBN lookups miss.
+
+The app now has a proper icon for the home screen, browser tabs, and "Add to Home Screen" on mobile. It's the basin/book motif from the design system. A full PWA manifest is in place so it looks right when pinned.
+
 ## v0.2.0
 
 Cloud Functions and Firestore security rules now deploy automatically alongside the frontend. The GitHub Actions pipeline handles the full stack on every push to main: build the Vite app, deploy hosting, then deploy functions and firestore rules in one go.

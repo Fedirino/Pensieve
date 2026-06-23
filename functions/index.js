@@ -4,28 +4,52 @@ const Anthropic = require("@anthropic-ai/sdk").default;
 
 const anthropicKey = defineSecret("ANTHROPIC_API_KEY");
 
+// ── Fuzzy title match ───────────────────────────────────────────────
+function titlesMatch(a, b) {
+  const normalize = (s) =>
+    s.toLowerCase().replace(/[^a-z0-9]/g, " ").replace(/\s+/g, " ").trim();
+  const na = normalize(a);
+  const nb = normalize(b);
+  // Either one contains the other, or they share enough words
+  if (na.includes(nb) || nb.includes(na)) return true;
+  const wordsA = new Set(na.split(" ").filter((w) => w.length > 2));
+  const wordsB = new Set(nb.split(" ").filter((w) => w.length > 2));
+  if (wordsA.size === 0 || wordsB.size === 0) return false;
+  let overlap = 0;
+  for (const w of wordsA) if (wordsB.has(w)) overlap++;
+  return overlap / Math.min(wordsA.size, wordsB.size) >= 0.5;
+}
+
 // ── Cover image resolution ──────────────────────────────────────────
 async function resolveCoverUrl(title, author, isbn13) {
-  // 1. Google Books API
+  // 1. Google Books API — try ISBN first, then title+author
   try {
     const queries = [];
     if (isbn13) queries.push(`isbn:${isbn13}`);
     queries.push(`intitle:${encodeURIComponent(title)}+inauthor:${encodeURIComponent(author)}`);
 
     for (const q of queries) {
-      const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=1`);
+      const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=3`);
       const data = await res.json();
-      if (data.items?.[0]?.volumeInfo?.imageLinks) {
-        const links = data.items[0].volumeInfo.imageLinks;
-        const url = links.thumbnail || links.smallThumbnail || "";
-        if (url) return url.replace("http://", "https://");
+      if (!data.items) continue;
+
+      // Find best matching result — verify the title actually matches
+      for (const item of data.items) {
+        const info = item.volumeInfo || {};
+        const resultTitle = info.title || "";
+        if (!titlesMatch(resultTitle, title)) continue;
+        const links = info.imageLinks;
+        if (links) {
+          const url = links.thumbnail || links.smallThumbnail || "";
+          if (url) return url.replace("http://", "https://");
+        }
       }
     }
   } catch (e) {
     console.warn("Google Books lookup failed:", e.message);
   }
 
-  // 2. Open Library fallback
+  // 2. Open Library fallback — try ISBN, then title search
   if (isbn13) {
     try {
       const olUrl = `https://covers.openlibrary.org/b/isbn/${isbn13}-L.jpg`;
@@ -34,8 +58,25 @@ async function resolveCoverUrl(title, author, isbn13) {
         return olUrl;
       }
     } catch (e) {
-      console.warn("Open Library lookup failed:", e.message);
+      console.warn("Open Library ISBN lookup failed:", e.message);
     }
+  }
+
+  // 3. Open Library search by title+author
+  try {
+    const searchUrl = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}&limit=3`;
+    const res = await fetch(searchUrl);
+    const data = await res.json();
+    if (data.docs?.length) {
+      for (const doc of data.docs) {
+        if (!titlesMatch(doc.title || "", title)) continue;
+        if (doc.cover_i) {
+          return `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`;
+        }
+      }
+    }
+  } catch (e) {
+    console.warn("Open Library search failed:", e.message);
   }
 
   return "";
@@ -80,7 +121,24 @@ exports.scanBookCover = onCall(
             },
             {
               type: "text",
-              text: 'Identify the book(s) in this image. Respond ONLY with a JSON array (no markdown, no backticks) of objects: {"title", "author", "isbn13", "genre" (Fiction/Non-Fiction/Sci-Fi/Fantasy/Mystery/Romance/History/Science/Philosophy/Biography/Self-Help/Poetry/Art/Other), "pages" (number), "summary" (2 sentences max)}. If none found, return [].',
+              text: `You are looking at a photo of a physical book cover. Your job is to identify the EXACT book shown.
+
+STEP 1: Read ALL visible text on the cover carefully — title, subtitle, author name, edition info, series name, publisher logo/name.
+STEP 2: Use every detail to identify the SPECIFIC edition. Pay close attention to:
+  - Subtitles (e.g. "The Original Screenplay" makes it a screenplay, not a novel)
+  - Series labels (e.g. "a Blue Bloods novel" means it's book N of that series)
+  - Author name spelling (read each letter carefully)
+STEP 3: If text is partially obscured or blurry, note what you CAN read and make your best identification. Do NOT guess a different book.
+
+Respond ONLY with a JSON array (no markdown, no backticks) of objects with these fields:
+- "title": full title including subtitle exactly as on the cover
+- "author": full author name exactly as printed
+- "isbn13": the ISBN-13 for this specific edition (must match the exact edition/format shown, not a different edition)
+- "genre": one of Fiction, Non-Fiction, Sci-Fi, Fantasy, Mystery, Romance, History, Science, Philosophy, Biography, Self-Help, Poetry, Art, Other
+- "pages": estimated page count (number)
+- "summary": 2 sentences max describing the book
+
+If you cannot identify any book, return [].`,
             },
           ],
         },
