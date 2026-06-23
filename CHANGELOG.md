@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.6.0
+
+Regenerated all app icons to be a pixel-perfect match of the header icon: the gold basin outline with two lavender mist wisps rising above the spine line, on the midnight background.
+
+Fixed cover art resolution for books that weren't finding covers. The Google Books API was hitting quota limits and silently failing, which meant the whole resolution chain was breaking at step one. Moved the Open Library title search up to run first since it's the most reliable source. Switched the Open Library ISBN cover check from a HEAD request to GET with a size check, because HEAD requests weren't following redirects properly in the Cloud Functions environment. Also added short-title variants for the Open Library search so academic books with long subtitles still match.
+
 ## v1.5.0
 
 Simplified the app icon to just the basin shape with mist rising out of it, no circle border or extra decoration. Should match the in-app header icon now.

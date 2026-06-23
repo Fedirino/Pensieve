@@ -39,6 +39,10 @@ async function resolveCoverUrl(title, author, isbn13) {
 
     for (const q of queries) {
       const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=5`);
+      if (!res.ok) {
+        console.warn(`Google Books API returned ${res.status} for query: ${q}`);
+        continue;
+      }
       const data = await res.json();
       if (!data.items) continue;
 
@@ -66,40 +70,45 @@ async function resolveCoverUrl(title, author, isbn13) {
     console.warn("Google Books lookup failed:", e.message);
   }
 
-  // 2. Open Library — try all known ISBNs
-  for (const isbn of isbns) {
-    if (isbn.length === 13) {
-      try {
-        const olUrl = `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`;
-        const res = await fetch(olUrl, { method: "HEAD", redirect: "follow" });
-        if (res.ok && res.headers.get("content-type")?.startsWith("image/")) {
-          return olUrl;
+  // 2. Open Library search by title+author (most reliable — gives cover_i directly)
+  const titleVariants = [title];
+  const shortTitle = title.split(/[:\-–—]/)[0].trim();
+  if (shortTitle !== title && shortTitle.length > 5) titleVariants.push(shortTitle);
+
+  for (const t of titleVariants) {
+    try {
+      const searchUrl = `https://openlibrary.org/search.json?title=${encodeURIComponent(t)}&author=${encodeURIComponent(author)}&limit=5`;
+      const res = await fetch(searchUrl);
+      const data = await res.json();
+      if (data.docs?.length) {
+        for (const doc of data.docs) {
+          if (!titlesMatch(doc.title || "", title)) continue;
+          if (doc.cover_i) {
+            return `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`;
+          }
+          // Collect ISBNs for Amazon fallback
+          if (doc.isbn?.length) {
+            for (const i of doc.isbn) isbns.add(i);
+          }
         }
-      } catch (e) {
-        console.warn("Open Library ISBN lookup failed:", e.message);
       }
+    } catch (e) {
+      console.warn("Open Library search failed:", e.message);
     }
   }
 
-  // 3. Open Library search by title+author
-  try {
-    const searchUrl = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}&limit=5`;
-    const res = await fetch(searchUrl);
-    const data = await res.json();
-    if (data.docs?.length) {
-      for (const doc of data.docs) {
-        if (!titlesMatch(doc.title || "", title)) continue;
-        if (doc.cover_i) {
-          return `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`;
-        }
-        // Collect ISBNs for Amazon fallback
-        if (doc.isbn?.length) {
-          for (const i of doc.isbn) isbns.add(i);
-        }
+  // 3. Open Library — try all known ISBNs (GET, check size to skip 1x1 placeholders)
+  for (const isbn of isbns) {
+    try {
+      const olUrl = `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`;
+      const res = await fetch(olUrl, { redirect: "follow" });
+      const len = parseInt(res.headers.get("content-length") || "0", 10);
+      if (res.ok && len > 1000) {
+        return olUrl;
       }
+    } catch (e) {
+      console.warn("Open Library ISBN lookup failed:", e.message);
     }
-  } catch (e) {
-    console.warn("Open Library search failed:", e.message);
   }
 
   // 4. Amazon cover image — try all known ISBN-10s and ISBN-13s
